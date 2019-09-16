@@ -1,0 +1,105 @@
+#Copyright (c) 2017-2018 Telos Foundation & contributors
+# Distributed under the MIT software license, see the accompanying
+# file COPYING or http://www.opensource.org/licenses/mit-license.php.
+
+#use: make -f test-makefile
+
+TARGET=xbase_test
+
+CC=g++
+AR=ar
+
+ifdef DebugBuild
+ 	$(info "DebugBuild for xbase_test")
+else
+    $(info "ReleaseBuild for xbase_test")
+endif
+
+ifdef LINUX
+	$(info "Build for LINUX")
+endif
+
+ifdef DebugBuild
+	OPTIONS=-DLINUX -DPOSIX -DDEBUG  -D_GNU_SOURCE -DTHREADED
+else
+	OPTIONS=-DLINUX -DPOSIX -DNDEBUG -D_GNU_SOURCE -DTHREADED
+endif
+
+ifdef DebugBuild
+	CFLAGS=-O0  -std=c++11 -rdynamic -g3 -ggdb -pedantic -Wno-unused-value -Wno-variadic-macros -Wno-deprecated -c -fmessage-length=0 --static -w -Wall -Wcast-align -Werror
+	LFLAGS=
+	OBJDIR=./obj/debug
+	OUTDIR=./
+else
+	#CFLAGS=-O2 -std=c++11 -rdynamic -g3 -ggdb -Wno-unused-value -Wno-variadic-macros -Wno-deprecated -c -fmessage-length=0 --static
+	#use following flags when stable after long time
+	CFLAGS=-O2  -std=c++11 -g -Wno-unused-value -Wno-variadic-macros -Wno-deprecated -c -fmessage-length=0 --static
+	LFLAGS=
+	OBJDIR=./obj/release
+	OUTDIR=./
+endif
+ 
+ifdef DebugBuild
+	LIB_PATH=  -L ../../libs/Linux/debug
+else
+	LIB_PATH=  -L ../../libs/Linux/release  
+endif
+
+SHARED_LIBFILES=-luv -lxbase -lintel_aes64 -lmbedcrypto -lmbedtls -lmbedx509
+
+INCLUDES= -I ../../
+
+OBJFILES=$(OBJDIR)/tcp_sample.o		 \
+		 $(OBJDIR)/udp_sample.o 	 \
+		 $(OBJDIR)/xcall_sample.o 	 \
+		 $(OBJDIR)/xdata_sample.o 	 \
+		 $(OBJDIR)/xtimer_sample.o 	 \
+		 $(OBJDIR)/xutl_sample.o 	 \
+		 $(OBJDIR)/xudp_sample.o 	 \
+		 $(OBJDIR)/tmain.o 			 \
+ 
+all:setup $(TARGET) clean_temp
+
+#
+# g++ can't handle dependency library scan, use the linker option to allow multiple-pass of search static libraries
+# to solve the link problem
+#
+$(TARGET): $(OBJFILES)
+	$(AR) cr $(OUTDIR)/tmain.a $(OBJFILES)
+	$(CC) $(LIB_PATH) -o $(OUTDIR)/$(TARGET) -Xlinker '-(' $(SHARED_LIBFILES) -ldl -lgcc -lstdc++ -lpthread $(OUTDIR)/tmain.a -Xlinker '-)'
+ 
+$(OBJDIR)/tcp_sample.o: ../../test/sample/tcp_sample.cpp
+	$(CC) $(OPTIONS) $(CFLAGS) $(INCLUDES) -o $(OBJDIR)/tcp_sample.o $?
+	
+$(OBJDIR)/udp_sample.o: ../../test/sample/udp_sample.cpp
+	$(CC) $(OPTIONS) $(CFLAGS) $(INCLUDES) -o $(OBJDIR)/udp_sample.o $?
+	
+$(OBJDIR)/xcall_sample.o: ../../test/sample/xcall_sample.cpp
+	$(CC) $(OPTIONS) $(CFLAGS) $(INCLUDES) -o $(OBJDIR)/xcall_sample.o $?
+
+$(OBJDIR)/xdata_sample.o: ../../test/sample/xdata_sample.cpp
+	$(CC) $(OPTIONS) $(CFLAGS) $(INCLUDES) -o $(OBJDIR)/xdata_sample.o $?
+	
+$(OBJDIR)/xtimer_sample.o: ../../test/sample/xtimer_sample.cpp
+	$(CC) $(OPTIONS) $(CFLAGS) $(INCLUDES) -o $(OBJDIR)/xtimer_sample.o $?
+
+$(OBJDIR)/xutl_sample.o: ../../test/sample/xutl_sample.cpp
+	$(CC) $(OPTIONS) $(CFLAGS) $(INCLUDES) -o $(OBJDIR)/xutl_sample.o $?
+	
+$(OBJDIR)/xudp_sample.o: ../../test/sample/xudp_sample.cpp
+	$(CC) $(OPTIONS) $(CFLAGS) $(INCLUDES) -o $(OBJDIR)/xudp_sample.o $?
+	
+$(OBJDIR)/tmain.o: ../../test/unittest/tmain.cpp
+	$(CC) $(OPTIONS) $(CFLAGS) $(INCLUDES) -o $(OBJDIR)/tmain.o $?
+
+setup:
+	mkdir -p $(OBJDIR)
+	
+clean_temp:
+	rm -f $(OBJDIR)/*.o
+	rm -f $(OUTDIR)/tmain.a
+
+clean:
+	rm -f $(OBJDIR)/*.o
+	rm -f $(OUTDIR)/tmain.a
+	rm -f $(OUTDIR)/$(TARGET)

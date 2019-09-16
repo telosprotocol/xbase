@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Workspace
+   version = "1.0">
+   <FileRef
+      location = "group:../iOS/iostestclient.xcodeproj">
+   </FileRef>
+   <FileRef
+      location = "group:../../src/uv/build/xuv.xcodeproj">
+   </FileRef>
+   <FileRef
+      location = "group:xbase-lib.xcodeproj">
+   </FileRef>
+   <FileRef
+      location = "group:xbase-test.xcodeproj">
+   </FileRef>
+</Workspace>
