@@ -1,4 +1,4 @@
-// Copyright (c) 2017-2018 Telos Foundation & contributors
+// Copyright (c) 2018-2020 Telos Foundation & contributors
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -18,13 +18,17 @@ namespace top
 
         typedef std::function<xobject_t*(int type)> xnew_function_t;
         typedef xobject_t* (*xnew_function_ptr)(int);
+         
         //global context by which communicated each other of all xiobjects
         class xcontext_t
         {
             friend class xiothread_t;
             friend class xnode_t;
             friend class xwrouter_t;
+            friend class xobject_t;
+            friend class xiobject_t;
         public:
+            static bool          is_inited(); //determine whether xcontext_t inited
             static xcontext_t &  instance();  //init the global context if not exist
             static bool          register_xobject(enum_xobject_type type,xnew_function_ptr creator_func_ptr);
             static bool          register_xobject(xcontext_t & _context,enum_xobject_type type,xnew_function_ptr creator_func_ptr);
@@ -38,11 +42,16 @@ namespace top
                 enum_global_object_key_invalid                      =  0,  //reserved for internal
                 enum_global_xbase_object_key_shared_mem_pool        =  1,  //xmalloc need global memory object
                 //internal reserved for [0,255]
-                enum_global_max_xbase_object_key                    = 255, //application may using below keys
+                
+                //must register xhash_t object for below types if need,refer xhash.h
+                enum_global_object_key_hash_plugin                  =  20, //support external hash funtion,refer enum_xhash_type at xbase.h
+                enum_global_object_key_debug_plugin                 =  21, //tracking mem & xiobject lifecycle
+            
+                enum_global_max_xbase_object_key                    =  64, //application may using below keys
                 ////////////////////////////////xbase objects key end/////////////////////////////////////////
 
                 //application objects key start                
-                enum_global_max_key_id                 = 1023
+                enum_global_max_key_id                 = 255
             };
             
             enum
@@ -63,6 +72,14 @@ namespace top
                 #endif
                 enum_system_scan_interval               = 60000,  //every 60 seconds(1minutes) to scan cpu/memory/network speed etc
             };
+        
+            enum enum_debug_mode //define specific debug mode
+            {
+                enum_release_mode                = 0, //default
+                enum_debug_mode_memory_check     = 1,
+                enum_debug_mode_reference_check  = 2,
+                enum_debug_mode_packet_check     = 4,
+            };
         protected:
             xcontext_t(const int32_t process_id);
         protected: //not allow destory it ,because it is a global object
@@ -74,6 +91,34 @@ namespace top
             //static bool          init_context(xcontext_t * new_context); //init_context  fail if global instance already init before
         public:
             //global variable
+            xobject_t*                      set_debug_plugin(xobject_t* _plugin_ptr)//return existing one
+            {
+                xassert(_plugin_ptr != nullptr);
+                if(nullptr == _plugin_ptr)
+                    return nullptr;
+                
+                xdbgplugin_t*  _dbg_plugin_ptr = (xdbgplugin_t*)_plugin_ptr->query_interface(enum_xobject_type_xdbgplugin);
+                xassert(_dbg_plugin_ptr != nullptr);
+                if(nullptr == _dbg_plugin_ptr)
+                    return nullptr;
+                
+                return set_global_object(enum_global_object_key_debug_plugin,_plugin_ptr);
+            }
+            
+            xobject_t*                      set_hash_plugin(xobject_t* _plugin_ptr)//return existing one
+            {
+                xassert(_plugin_ptr != nullptr);
+                if(nullptr == _plugin_ptr)
+                    return nullptr;
+                
+                xhashplugin_t*  _hash_plugin_ptr = (xhashplugin_t*)_plugin_ptr->query_interface(enum_xobject_type_xhashplugin);
+                xassert(_hash_plugin_ptr != nullptr);
+                if(nullptr == _hash_plugin_ptr)
+                    return nullptr;
+
+                return set_global_object(enum_global_object_key_hash_plugin,_plugin_ptr);
+            }
+            
             xobject_t*                      set_global_object(enum_global_object_key global_key_id,xobject_t* pPtr)//return existing one
             {
                 if( (int)global_key_id > enum_global_max_key_id) //exception protect
@@ -98,11 +143,24 @@ namespace top
             xiothread_t*                    find_thread(const int thread_type,bool use_dedicated_thread);//find a thread with specified type,use_dedicated_thread decide whether ask full-match when search
             bool                            get_aes_keyid_range(uint8_t & min_key_id,uint8_t & max_key_id); //available key id list is be [min_key_id,max_key_id);
             bool                            get_buildin_aeskey(const uint8_t key_id, uint8_t aes_128bit_key[16]);
-            inline int32_t                  get_process_id() const   {return m_process_id;}
+            inline int32_t                  get_process_id() const   {return m_process_id;} //return logic process id
             inline enum_xprocess_run_mode   get_process_cpu_mode() const {return m_process_cpu_mode;}
             inline int32_t                  get_current_thread_id()  {return get_xtls_instance()->get_cur_thread_id(false);} //return current execute thread id
             inline void                     set_process_id(const int32_t process_id){m_process_id = process_id;}
             //xcontext/xbase has master build-in keys that are rotated time by time
+
+            const std::string               hash(const std::string & input,enum_xhash_type type); //redirect xhash object
+            
+        public: //debug use only
+            inline int32_t    get_debug_modes() const {return m_debug_modes;}
+            int32_t    set_debug_modes(const int32_t modes); //return last setting,refer enum_debug_mode
+            
+        protected:
+            bool       on_object_create(xobject_t* target);
+            bool       on_object_destroy(xobject_t* target);
+            
+            bool       on_object_addref(xobject_t* target);
+            bool       on_object_releaseref(xobject_t* target);
         public:
             //put to queue and release at next time when term(recap) thread wake up
             virtual  bool       delay_release_object(xrefcount_t* object_release);
@@ -122,8 +180,21 @@ namespace top
             
         public:// multiple thread safe, handle packet
             int32_t   send(uint64_t from_xip_addr_low,uint64_t from_xip_addr_high,uint64_t to_xip_addr_low,uint64_t to_xip_addr_high,xpacket_t & packet,int32_t cur_thread_id,uint64_t timenow_ms,xendpoint_t* from_end);
-        protected:
+ 
             int32_t   recv(uint64_t from_xip_addr_low,uint64_t from_xip_addr_high,uint64_t to_xip_addr_low,uint64_t to_xip_addr_high,xpacket_t & packet,int32_t cur_thread_id,uint64_t timenow_ms,xendpoint_t* from_end);
+            
+        public://only for Linux OS right now,and just return estimated value of most recent
+            void                    monitor_system_metric(bool enable_or_disable);//true for enable(default) and false for disable
+            
+            int32_t                 get_sys_cpu_load();             //0-100
+            int32_t                 get_sys_mem_load();             //0 -100
+            int32_t                 get_sys_net_in_speed();         //Kbits/s
+            int32_t                 get_sys_net_in_throughout();    //packets/s
+            int32_t                 get_sys_net_in_drop();          //packets/s
+            int32_t                 get_sys_net_out_speed();        //Kbits/s
+            int32_t                 get_sys_net_out_throughout();   //packets/s
+            int32_t                 get_sys_net_out_drop();         //packets/s
+            
         protected:
             virtual int32_t     register_thread(xiothread_t * io_thread_obj); //return thread_id associated with thread object
             virtual bool        unregister_thread(const int32_t thread_id);   //return false if not find related thread;
@@ -142,7 +213,7 @@ namespace top
             void*                    m_recap_timer;
             xtls_t*                  m_ptr_tls_instance;
 
-            int32_t                  m_process_id;  //process id of current application
+            int32_t                  m_process_id;  //process id of current application(logic process id instead of system process id)
             enum_xprocess_run_mode   m_process_cpu_mode;//default it is enum_xprocess_run_mode_single_cpu_core
             std::recursive_mutex     m_lock;            //general lock for xcontext_t
             std::recursive_mutex     m_recap_lock;      //dedicate lock for recap/recycle objects
@@ -163,8 +234,20 @@ namespace top
         private:
             std::multimap<uint64_t, xrefcount_t*> m_recap_waiting_objects;
         private:
-            uint64_t    m_last_scan_timestamp;
+            int32_t     m_debug_modes;              //refer
+        private: //system metric information
+            int32_t     m_sys_cpu_load;             //0-100
+            int32_t     m_sys_mem_load;             //0-100
             
+            int32_t     m_sys_net_in_speed;         //kbits /s
+            int32_t     m_sys_net_in_throughout;    //packets/s
+            int32_t     m_sys_net_in_drop;          //packets/s
+            
+            int32_t     m_sys_net_out_speed;        //kbits /s
+            int32_t     m_sys_net_out_throughout;   //packets/s
+            int32_t     m_sys_net_out_drop;         //packets/s
+        private:
+            uint64_t    m_last_scan_timestamp;
             uint64_t    m_last_cpu_used_since_boot;
             uint64_t    m_last_cpu_idle_since_boot;
             
@@ -174,6 +257,55 @@ namespace top
             uint64_t    m_last_sys_tx_bytes;        //sent bytes
             uint64_t    m_last_sys_tx_packets;      //sent packets
             uint64_t    m_last_sys_tx_drop_packets; //error or dropped packets when send
+            
+            std::string m_default_net_interface_name;
+        };
+        
+    #define IMPL_REGISTER_OBJECT(T) void T::register_object(xcontext_t & context) { \
+        auto lambda_new_func = [](const int type)->xobject_t*{ \
+            return new T(); \
+        }; \
+        xcontext_t::register_xobject2(context,(enum_xobject_type)T::enum_obj_type,lambda_new_func); \
+        }\
+        
+        template<typename T>
+        class auto_new_registor
+        {
+        public:
+            auto_new_registor()
+            {
+                _register(xcontext_t::instance());
+            }
+        public:
+            static void _register(xcontext_t & _context)
+            {
+                //T must support default construction function
+                auto lambda_new_func = [](const int type)->xobject_t*{
+                    return new T();
+                };
+                //T must have  enum_type definition
+                xcontext_t::register_xobject2(_context,(enum_xobject_type)T::enum_obj_type,lambda_new_func);
+            }
+        };
+        
+        template<typename T,const int _type>
+        class auto_new_registor2
+        {
+        public:
+            auto_new_registor2()
+            {
+                _register(xcontext_t::instance());
+            }
+        public:
+            static void _register(xcontext_t & _context)
+            {
+                //T must support default construction function
+                auto lambda_new_func = [](const int type)->xobject_t*{
+                    return new T();
+                };
+                //T must have  enum_type definition
+                xcontext_t::register_xobject2(_context,(enum_xobject_type)_type,lambda_new_func);
+            }
         };
     };//end of namespace base
 }; //end of namespace top

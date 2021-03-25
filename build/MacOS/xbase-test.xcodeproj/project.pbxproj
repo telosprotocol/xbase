@@ -12,6 +12,7 @@
 		994AE1FB220521420045A160 /* xtimer_sample.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 994AE1FA220521420045A160 /* xtimer_sample.cpp */; };
 		994F8F6921AFD09800EFA18F /* tmain.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 994F8F6821AFD09800EFA18F /* tmain.cpp */; };
 		994F8F6C21AFD10C00EFA18F /* libxbase.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 994F8F6B21AFD10C00EFA18F /* libxbase.a */; };
+		99A6A55B25EF2DF600EA149F /* xstate_sample.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 99A6A55A25EF2DF600EA149F /* xstate_sample.cpp */; };
 		99DF1ACD21C750C400AE5646 /* tcp_sample.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 99DF1ACC21C750C400AE5646 /* tcp_sample.cpp */; };
 		99DF1ACF21C7656C00AE5646 /* udp_sample.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 99DF1ACE21C7656C00AE5646 /* udp_sample.cpp */; };
 		99DF1AD121C765F600AE5646 /* xdata_sample.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 99DF1AD021C765F600AE5646 /* xdata_sample.cpp */; };
@@ -41,6 +42,7 @@
 		994F8F5A21AFCE9700EFA18F /* xbase-test */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = "xbase-test"; sourceTree = BUILT_PRODUCTS_DIR; };
 		994F8F6821AFD09800EFA18F /* tmain.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = tmain.cpp; path = ../../test/unittest/tmain.cpp; sourceTree = "<group>"; };
 		994F8F6B21AFD10C00EFA18F /* libxbase.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libxbase.a; path = "../../../../../../Library/Developer/Xcode/DerivedData/xbase-aebsqocrgepwutffszoltagtwezg/Build/Products/Debug/libxbase.a"; sourceTree = "<group>"; };
+		99A6A55A25EF2DF600EA149F /* xstate_sample.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = xstate_sample.cpp; path = ../../test/sample/xstate_sample.cpp; sourceTree = "<group>"; };
 		99DF1ACC21C750C400AE5646 /* tcp_sample.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = tcp_sample.cpp; path = ../../test/sample/tcp_sample.cpp; sourceTree = "<group>"; };
 		99DF1ACE21C7656C00AE5646 /* udp_sample.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = udp_sample.cpp; path = ../../test/sample/udp_sample.cpp; sourceTree = "<group>"; };
 		99DF1AD021C765F600AE5646 /* xdata_sample.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = xdata_sample.cpp; path = ../../test/sample/xdata_sample.cpp; sourceTree = "<group>"; };
@@ -64,6 +66,7 @@
 		994F8F5121AFCE9700EFA18F = {
 			isa = PBXGroup;
 			children = (
+				99A6A55A25EF2DF600EA149F /* xstate_sample.cpp */,
 				991E202D225DD321006FB666 /* xutl_sample.cpp */,
 				994AE1FA220521420045A160 /* xtimer_sample.cpp */,
 				99DF1AD221C7664400AE5646 /* xcall_sample.cpp */,
@@ -138,6 +141,7 @@
 			developmentRegion = English;
 			hasScannedForEncodings = 0;
 			knownRegions = (
+				English,
 				en,
 			);
 			mainGroup = 994F8F5121AFCE9700EFA18F;
@@ -159,6 +163,7 @@
 				99DF1AD121C765F600AE5646 /* xdata_sample.cpp in Sources */,
 				99DF1AD621C8AD6600AE5646 /* xchaincore.cpp in Sources */,
 				993FFC02227E0F83008753FE /* xudp_sample.cpp in Sources */,
+				99A6A55B25EF2DF600EA149F /* xstate_sample.cpp in Sources */,
 				994F8F6921AFD09800EFA18F /* tmain.cpp in Sources */,
 				99DF1AD321C7664400AE5646 /* xcall_sample.cpp in Sources */,
 				99DF1ACD21C750C400AE5646 /* tcp_sample.cpp in Sources */,
@@ -266,6 +271,9 @@
 				CLANG_CXX_LANGUAGE_STANDARD = "c++0x";
 				GCC_C_LANGUAGE_STANDARD = c99;
 				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_TREAT_WARNINGS_AS_ERRORS = YES;
+				GCC_WARN_INHIBIT_ALL_WARNINGS = YES;
+				GCC_WARN_PEDANTIC = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				USER_HEADER_SEARCH_PATHS = ../../;
 			};
@@ -278,6 +286,9 @@
 				CLANG_CXX_LANGUAGE_STANDARD = "c++0x";
 				GCC_C_LANGUAGE_STANDARD = c99;
 				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_TREAT_WARNINGS_AS_ERRORS = YES;
+				GCC_WARN_INHIBIT_ALL_WARNINGS = YES;
+				GCC_WARN_PEDANTIC = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				USER_HEADER_SEARCH_PATHS = ../../;
 			};

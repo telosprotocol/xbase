@@ -16,6 +16,7 @@
 #include "xpacket.h"
 #include "xsocket.h"
 #include "xutl.h"
+#include "xvstate.h"
 
 
 class xstringunit_t : public top::base::xdataunit_t
@@ -125,7 +126,7 @@ protected:
         
         archive >> _uint32_value;
         
-        int32_t new_size = archive.size();
+        //int32_t new_size = archive.size();
         
         archive >> _raw_content;
         //add others ...
@@ -154,7 +155,7 @@ protected:
         
         archive >> _uint32_value;
         
-        int32_t new_size = archive.size();
+        //int32_t new_size = archive.size();
         
         archive >> _raw_content;
         //add others ...
@@ -213,6 +214,37 @@ uint64_t  bloom_revert_hash(const void * src_data_ptr,const int32_t src_data_len
 }
 
 
+class newmsgpdu_t : public top::base::xdatapdu_t
+{
+public:
+    newmsgpdu_t(const std::string & extra_data)
+    {
+        m_extra_data = extra_data;
+    }
+    virtual ~newmsgpdu_t()
+    {
+    }
+private:
+    newmsgpdu_t(const newmsgpdu_t &);
+    newmsgpdu_t & operator = (const newmsgpdu_t &);
+protected:
+    virtual int32_t     do_write(top::base::xstream_t & stream) override    //write whole object to binary
+    {
+        const int begin_size = stream.size();
+        
+        top::base::xdatapdu_t::do_write(stream);
+        
+        stream.push_back((const uint8_t*)m_extra_data.data(), (int)m_extra_data.size());
+ 
+        return (stream.size() - begin_size);
+    }
+
+private:
+    std::string  m_extra_data;
+};
+
+
+
 int test_xdata(bool is_stress_test)
 {
     std::string test_raw_data = "welcome aes data: ";
@@ -224,6 +256,70 @@ int test_xdata(bool is_stress_test)
             random_seed1 += 33;
         test_raw_data.push_back(random_seed1);
     }
+    
+    for(int i = 0;i < 1000; ++i)
+    {
+        const uint64_t int_input = top::base::xtime_utl::get_fast_random64();
+        std::string hex_output = top::base::xstring_utl::uint642hex(int_input);
+        if((i % 2) == 0)
+            top::base::xstring_utl::toupper_string(hex_output);
+        const uint64_t int_output = top::base::xstring_utl::hex2uint64(hex_output);
+        xassert(int_input == int_output);
+    }
+    
+    
+    uint64_t uint64_const1 = 0xFFFFFFFF01FFFFFF;
+    uint64_t uint64_const2 = (uint64_t)0xFFFFFFFF01FFFFFF;
+    uint64_t uint64_const3 = (uint64_t)0xFFFFFFFF01FFFFFFULL;
+    
+    xassert(uint64_const1 == uint64_const2);
+    if(uint64_const1 != uint64_const2)
+        return -97;
+    xassert(uint64_const2 == uint64_const3);
+    if(uint64_const2 != uint64_const3)
+        return -97;
+    
+    //test xmsgpdu_t
+    newmsgpdu_t newer_pdu(test_raw_data);
+    newer_pdu.reset_message(0, 0, test_raw_data, 1, 1, 2);
+    top::base::xautostream_t<1000> msgstream(top::base::xcontext_t::instance());
+    newer_pdu.serialize_to(msgstream);
+  
+    top::base::xdatapdu_t older_pdu;
+    older_pdu.serialize_from(msgstream);
+    if(older_pdu.get_msg_body() != test_raw_data)
+    {
+        assert(0);
+        return -98;
+    }
+    
+    if(older_pdu.get_unknown_content() != test_raw_data)
+    {
+        assert(0);
+        return -99;
+    }
+    
+    //test xcspdu_t
+    top::base::xbftpdu_t test_xcspdu_t;
+    test_xcspdu_t.reset_message(1, 1, test_raw_data, 1, 1, 2);
+    top::base::xautostream_t<1000> pdu_stream(top::base::xcontext_t::instance());
+    test_xcspdu_t.set_vblock_cert(test_raw_data);
+    const int32_t cspud_writed = test_xcspdu_t.serialize_to(pdu_stream);
+    const int32_t cspud_readed = test_xcspdu_t.serialize_from(pdu_stream);
+    if(cspud_writed != cspud_readed)
+    {
+        assert(0);
+        return -99;
+    }
+    test_xcspdu_t.serialize_to(pdu_stream);
+    top::base::xcspdu_t * _new_test_xcspdu = (top::base::xcspdu_t *)top::base::xdataunit_t::read_from(pdu_stream);
+    if(NULL == _new_test_xcspdu)
+    {
+        assert(0);
+        return -99;
+    }
+    _new_test_xcspdu->release_ref();
+
     
     //test compress rate
     for(int i = 0; i < 10; ++i)
@@ -321,7 +417,6 @@ int test_xdata(bool is_stress_test)
     
     _test_stream >> uin16_value;
     printf("------------------------_test_stream.size() =%d ----------------------------- \n",(int)_test_stream.size());
-    
     
     //test vector
     {

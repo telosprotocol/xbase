@@ -1,4 +1,4 @@
-// Copyright (c) 2017-2018 Telos Foundation & contributors
+// Copyright (c) 2018-2020 Telos Foundation & contributors
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -23,7 +23,7 @@ namespace top
         protected:
             enum
             {
-                #if defined(XCPU_ARCH_X86) || defined(__MAC_PLATFORM__)
+                #if defined(XCPU_ARCH_X86) || defined(__MAC_PLATFORM__) || defined(__LINUX_PLATFORM__)
                 enum_mailbox_lowwater          = 512,   //low water for left unprocessed items
                 enum_mailbox_highwater         = 4096,  //high water for left unprocessed items
                 

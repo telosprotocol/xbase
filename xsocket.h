@@ -1,4 +1,4 @@
-// Copyright (c) 2017-2018 Telos Foundation & contributors
+// Copyright (c) 2018-2020 Telos Foundation & contributors
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -98,6 +98,12 @@ namespace  top
             uint16_t     _peer_real_port;           //peer socket 'port
             std::string  _peer_ip_addr;             //peer IPv4 or IPv6 address
             
+            //authentication of this side
+            std::string  _this_account_id;          //account address,verify by _this_signature
+            std::string  _this_signature;           //ecc signature(_client_public_key),and may decode out public-key from signature
+            std::string  _this_payload;             //carry on any addtional information
+            
+            //authentication information of peer side
             std::string  _peer_account_id;          //account address,verify by _peer_signature
             std::string  _peer_signature;           //ecc signature(_client_public_key),and may decode out public-key from signature
             std::string  _peer_payload;             //carry on any addtional information
@@ -132,7 +138,7 @@ namespace  top
             inline enum_socket_type    get_socket_type() const {return m_socket_type;}
             inline enum_io_write_mode  get_io_write_mode() const {return m_io_write_mode;}
             
-            virtual xfd_handle_t       get_handle(); //Get OS native handle
+            virtual xfd_handle_t       get_handle() const; //Get OS native handle
             //caller respond to cast (void*) to related  interface ptr
             virtual void*              query_interface(const int32_t type) override;
             
@@ -217,7 +223,7 @@ namespace  top
             //return total how many bytes(include OOB) to writed out, < 0 means has error that need close
             virtual int32_t     write_packet(xpacket_t & packet,const int32_t cur_thread_id,const uint64_t timenow_ms) = 0;
         protected:
-            virtual std::string dump() override; //dump trace information,just for debug purpose
+            virtual std::string dump() const override; //dump trace information,just for debug purpose
             enum_socket_status  get_socket_status() const {return m_socket_status;}
             void                set_socket_status(enum_socket_status status){ m_socket_status = status;}
  
@@ -492,7 +498,16 @@ namespace  top
             
             virtual int32_t     send(uint64_t from_xip_addr_low,uint64_t from_xip_addr_high,uint64_t to_xip_addr_low,uint64_t to_xip_addr_high,xpacket_t & packet,int32_t cur_thread_id,uint64_t timenow_ms,xendpoint_t* from_parent_end) override;
             
-            virtual std::string dump() override; //dump trace information,just for debug purpose
+            virtual std::string dump() const override; //dump trace information,just for debug purpose
+            
+            std::string get_this_account_id() const{return m_this_account_id;}
+            std::string get_this_account_signature() const{return m_this_account_signature;}
+            std::string get_this_account_payload() const{return m_this_account_payload;}
+            
+            std::string get_peer_account_id() const{return m_peer_account_id;}
+            std::string get_peer_account_signature() const{return m_peer_account_signature;}
+            std::string get_peer_account_payload() const{return m_peer_account_payload;}
+            
         protected:
             int32_t             send_data_pdu(xpacket_t & _data,int32_t cur_thread_id,uint64_t timenow_ms,xendpoint_t* from_parent_end);
  
@@ -528,9 +543,14 @@ namespace  top
             int64_t                 m_connecting_start_time; //when start to connect,we do timeout for them
             xtimer_t*               m_socket_timer;
             
-            std::string             m_this_account_id;  //it' account_address or account_id,generated from peer'public key
+            std::string             m_this_account_id;          //it' account_address or account_id local side
             std::string             m_this_account_signature;   //it' ecc signature(_public_key) for account_id,decode public key from signature
-            std::string             m_this_account_payload; //customized payload data(send to peer for handshake or other)
+            std::string             m_this_account_payload;     //customized payload data(send to peer for handshake or other)
+            
+            std::string             m_peer_account_id;          //it' account_address or account_id,generated from peer'public key
+            std::string             m_peer_account_signature;   //it' ecc signature(_public_key) for account_id,decode public key from signature
+            std::string             m_peer_account_payload; //customized payload data(send to peer for handshake or other)
+
         private:
             std::map<int32_t,std::map<int32_t,xpacket_t> > m_fragment_packets; //key as sequence_id ,value is related fragments packet(pending with timeout)
             void*                   m_pending_mqueue;      //pending write queue to cache packet before connected,internal use only
@@ -689,6 +709,9 @@ namespace  top
             //create client socket for connect,note:create_xslsocket may pick thread of xudplisten as the host thread of xslsocket_t if socket_attach_to_thread_id is <= 0
             xslsocket_t*       create_xslsocket(enum_socket_type vsocket_type,int32_t socket_attach_to_thread_id = 0); //create xudp_t, xrudp_t etc
             
+            //create client socket with autentication informat that may showed up at on_xslsocket_accept
+            xslsocket_t*       create_xslsocket(std::string  my_account_id,std::string  my_account_signature,std::string  my_account_payload,enum_socket_type vsocket_type,int32_t socket_attach_to_thread_id = 0); //create xudp_t, xrudp_t etc
+        
             //provide ping function for outside,and peer may trigger on_ping_packet_recv when recv this ping packet
             virtual int        send_ping(std::string target_ip_addr,uint16_t target_ip_port,const std::string & _payload,uint16_t TTL,uint16_t avg_RTT = 0,uint16_t target_logic_port = 0,uint16_t target_logic_port_token = 0,uint16_t from_logic_port = 0,uint16_t from_logic_port_token = 0);
             

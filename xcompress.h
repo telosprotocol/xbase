@@ -1,4 +1,4 @@
-// Copyright (c) 2017-2018 Telos Foundation & contributors
+// Copyright (c) 2018-2020 Telos Foundation & contributors
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -10,6 +10,8 @@ namespace top
     {
         class xcompress_t
         {
+        public:
+            enum { enum_const_minimal_size_to_compress = 64}; //lz4 just waste cpu and has nothing help for data with size < 64 bytes
         public://lossless but very fast compress and decompress,lz4 may get up 25% compress rate for txt/doc content at 600MB/s
             //Note: 1.) it is good for html/script/txt/doc,but useless for png/jpeg/video etc
             //Note: 2.) it is good for cache/use raw data of big sizes at real-time to reduce memory usage

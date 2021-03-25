@@ -1,4 +1,4 @@
-// Copyright (c) 2017-2018 Telos Foundation & contributors
+// Copyright (c) 2018-2020 Telos Foundation & contributors
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -157,6 +157,7 @@ namespace top
         public: //advance use case
             bool   close();  //release the memory if have
             
+            bool   copy_property(const xpacket_t & packet);//copy property only
             bool   copy_from(const xpacket_t & packet,bool just_copy_property = false);//copy whole data and property or just property
             bool   move_from(xpacket_t & packet);
             

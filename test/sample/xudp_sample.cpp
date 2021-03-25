@@ -138,6 +138,12 @@ protected:
     {
         return new xp2pudp_t(*get_context(),parent,cur_thread_id,handle,property);
     }
+    
+    virtual xslsocket_t*     on_xslsocket_accept(xfd_handle_t handle,xsocket_property & property, int32_t cur_thread_id,uint64_t timenow_ms) override
+    {
+        printf("on_xslsocket_accept,peer_account(%s),peer_signature(%s) and peer_payload(%s) \n",property._peer_account_id.c_str(),property._peer_signature.c_str(),property._peer_payload.c_str());
+        return xudplisten_t::on_xslsocket_accept(handle,property,cur_thread_id,timenow_ms);
+    }
  
 protected: //p2p support,receive ping packet from peer
     virtual int32_t     on_ping_packet_recv(xpacket_t & packet,int32_t cur_thread_id,uint64_t timenow_ms,xendpoint_t* from) override
@@ -180,8 +186,8 @@ protected:
 
 int test_xudp(bool is_stress_test)
 {
-    uint8_t test = 0;
-    std::uint8_t type1 = test;
+    //uint8_t test = 0;
+    //std::uint8_t type1 = test;
     
     printf("------------------------[test_xudp] start -----------------------------  \n");
  
@@ -189,7 +195,7 @@ int test_xudp(bool is_stress_test)
     printf("system kernel(%s) and _support_recvmmsg(%d) \n",xsys_utl::kernel_version().c_str(),_support_recvmmsg);
     
     std::string test_raw_data = "random data: ";
-    const uint32_t random_len1 = top::base::xtime_utl::get_fast_randomu() % 4192;
+    const uint32_t random_len1 = 1024 + top::base::xtime_utl::get_fast_randomu() % 1024;
     for(int j = 0; j < random_len1; ++j) //avg 2048 bytes per packet
     {
         int8_t random_seed1 = (int8_t)(top::base::xtime_utl::get_fast_randomu());
@@ -204,6 +210,9 @@ int test_xudp(bool is_stress_test)
     printf("random string_length = %d \n",(int)test_raw_data.size());
     //printf("random string = %s \n",test_raw_data.c_str());
     
+    std::string  this_account_id = "T_TEST_123";
+    std::string  this_signature = "signature_of_T_TEST_123";
+    std::string  this_payload = "payload_of_T_TEST_123";
     
  
     const std::string local_listen_addr_v4 = "127.0.0.1";
@@ -252,6 +261,7 @@ int test_xudp(bool is_stress_test)
         printf("////////////////////////                                                     ///////////////////////////// \n");
         
         peer_xudp_socket_1 = (xp2pudp_t*)client_listener_ptr->create_xslsocket(enum_socket_type_xudp,client_socket_io_thread->get_thread_id());
+        peer_xudp_socket_1->init_authentication("new_TEST_123",this_signature,this_payload);
         //peer_xudp_socket_1 = (xp2pudp_t*)client_listener_ptr->create_xslsocket(enum_socket_type_xudp,top::base::xcontext_t::instance().get_current_thread_id());
         peer_xudp_socket_1->connect(server_listener_ptr->get_local_ip_address(),server_listener_ptr->get_local_real_port());
        
@@ -267,8 +277,8 @@ int test_xudp(bool is_stress_test)
     {
         printf("////////////////////////[test_xudp] ,case#2: client:connect -> peer:accept ///////////////////////////// \n");
         printf("////////////////////////                                                   ///////////////////////////// \n");
-        peer_xudp_socket_1 = (xp2pudp_t*)client_listener_ptr->create_xslsocket(enum_socket_type_xudp,client_socket_io_thread->get_thread_id());
-        peer_xudp_socket_2 = (xp2pudp_t*)server_listener_ptr->create_xslsocket(enum_socket_type_xudp,client_socket_io_thread->get_thread_id());
+        peer_xudp_socket_1 = (xp2pudp_t*)client_listener_ptr->create_xslsocket(this_account_id,this_signature,this_payload, enum_socket_type_xudp,client_socket_io_thread->get_thread_id());
+        peer_xudp_socket_2 = (xp2pudp_t*)server_listener_ptr->create_xslsocket(this_account_id,this_signature,this_payload,enum_socket_type_xudp,client_socket_io_thread->get_thread_id());
         
         //directly conntect to peer socket
         peer_xudp_socket_1->connect(peer_xudp_socket_2->get_local_ip_address(),peer_xudp_socket_2->get_local_real_port(),peer_xudp_socket_2->get_local_logic_port(),peer_xudp_socket_2->get_local_logic_port_token());
@@ -292,8 +302,8 @@ int test_xudp(bool is_stress_test)
         printf("////////////////////////[test_xudp] ,case#3: client:connect <-> peer:connect ///////////////////////////// \n");
         printf("////////////////////////                                                     ///////////////////////////// \n");
         
-        peer_xudp_socket_1 = (xp2pudp_t*)client_listener_ptr->create_xslsocket(enum_socket_type_xudp,client_socket_io_thread->get_thread_id());
-        peer_xudp_socket_2 = (xp2pudp_t*)server_listener_ptr->create_xslsocket(enum_socket_type_xudp,client_socket_io_thread->get_thread_id());
+        peer_xudp_socket_1 = (xp2pudp_t*)client_listener_ptr->create_xslsocket(this_account_id,this_signature,this_payload,enum_socket_type_xudp,client_socket_io_thread->get_thread_id());
+        peer_xudp_socket_2 = (xp2pudp_t*)server_listener_ptr->create_xslsocket(this_account_id,this_signature,this_payload,enum_socket_type_xudp,client_socket_io_thread->get_thread_id());
         
         //directly conntect to peer socket 2
         peer_xudp_socket_1->connect(peer_xudp_socket_2->get_local_ip_address(),peer_xudp_socket_2->get_local_real_port(),peer_xudp_socket_2->get_local_logic_port(),peer_xudp_socket_2->get_local_logic_port_token());
@@ -316,8 +326,8 @@ int test_xudp(bool is_stress_test)
     {
         printf("////////////////////////[test_xudp] ,case#4: client:connect <--> ping <--> peer:connect ///////////////////////////// \n");
         printf("////////////////////////                                                                ///////////////////////////// \n");
-        peer_xudp_socket_1 = (xp2pudp_t*)client_listener_ptr->create_xslsocket(enum_socket_type_xudp,client_socket_io_thread->get_thread_id());
-        peer_xudp_socket_2 = (xp2pudp_t*)server_listener_ptr->create_xslsocket(enum_socket_type_xudp,client_socket_io_thread->get_thread_id());
+        peer_xudp_socket_1 = (xp2pudp_t*)client_listener_ptr->create_xslsocket(this_account_id,this_signature,this_payload,enum_socket_type_xudp,client_socket_io_thread->get_thread_id());
+        peer_xudp_socket_2 = (xp2pudp_t*)server_listener_ptr->create_xslsocket(this_account_id,this_signature,this_payload,enum_socket_type_xudp,client_socket_io_thread->get_thread_id());
         
         //ping socket 1 to ping server
         const std::string _ping_payload1 = xstring_utl::tostring(peer_xudp_socket_1->get_local_logic_port()) + "-" + xstring_utl::tostring(peer_xudp_socket_1->get_local_logic_port_token());
@@ -350,17 +360,39 @@ int test_xudp(bool is_stress_test)
             }
         }
         
+        //send data before connected
+        for(int i = 0; i < 10; ++i) //send 21 packet in advance
+        {
+            //const std::string test_pre_send_raw_data = test_raw_data + ": presend data before connection with presend-id: " + xstring_utl::tostring(i + 1);
+            
+            const std::string test_pre_send_raw_data = test_raw_data + " : " + xstring_utl::tostring(i + 1);
+            xpacket_t test_packet(top::base::xcontext_t::instance()); //assume now it is connected
+            
+            const int header_size = std::min((int)test_pre_send_raw_data.size(),256);
+            test_packet.get_header().push_front((uint8_t*)test_pre_send_raw_data.data(),header_size);
+            test_packet.get_body().push_back((uint8_t*)test_pre_send_raw_data.data() + header_size, (int)test_pre_send_raw_data.size() - header_size);
+            test_packet.set_process_flag(enum_xpacket_process_flag_compress); //ask compress
+            //test_packet.set_process_flag(enum_xpacket_process_flag_encrypt);  //ask compress
+            test_packet.set_process_flag(enum_xpacket_process_flag_checksum); //ask checksum
+            test_packet.set_packet_flag(enum_xpacket_deliver_ack_flag);
+            test_packet.set_MTUL(2);  //set MTU as 1 * 256
+            
+            if(get_xpacket_reliable_type(test_packet.get_packet_flags()) >= enum_xpacket_reliable_type_most )
+            {
+                peer_xudp_socket_1->send(0, 0, 0, 0, test_packet, 0, 0, NULL);
+            }
+        }
 
         
         top::base::xtime_utl::sleep_ms(5000); //leave 3 second to connect
     }
     
-    if(0)
+    if(1)
     {
         printf("////////////////////////[test_xudp] ,case#5: xipconnection <--> xipconnection ///////////////////////////// \n");
         printf("////////////////////////                                                                ///////////////////////////// \n");
-        peer_xudp_socket_1 = (xp2pudp_t*)client_listener_ptr->create_xslsocket(enum_socket_type_xudp,client_socket_io_thread->get_thread_id());
-        peer_xudp_socket_2 = (xp2pudp_t*)server_listener_ptr->create_xslsocket(enum_socket_type_xudp,client_socket_io_thread->get_thread_id());
+        peer_xudp_socket_1 = (xp2pudp_t*)client_listener_ptr->create_xslsocket(this_account_id,this_signature,this_payload,enum_socket_type_xudp,client_socket_io_thread->get_thread_id());
+        peer_xudp_socket_2 = (xp2pudp_t*)server_listener_ptr->create_xslsocket(this_account_id,this_signature,this_payload,enum_socket_type_xudp,client_socket_io_thread->get_thread_id());
         
         xconnection_t * peer_connect_1 = new xconnection_t(top::base::xcontext_t::instance(),peer_xudp_socket_1->get_thread_id(),NULL,peer_xudp_socket_1);
         xconnection_t * peer_connect_2 = new xconnection_t(top::base::xcontext_t::instance(),peer_xudp_socket_2->get_thread_id(),NULL,peer_xudp_socket_2);

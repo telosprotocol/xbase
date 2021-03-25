@@ -1,4 +1,4 @@
-// Copyright (c) 2017-2018 Telos Foundation & contributors
+// Copyright (c) 2018-2020 Telos Foundation & contributors
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -49,16 +49,20 @@ namespace top
         //xobject_t require to create object by new ,and destroy by release
         enum enum_xobject_type
         {
-            //application may use types of [1,32767]
-            enum_xobject_type_max       = 32767,
+            //application may use types of [1,1280]
+            enum_xobject_type_max       = 1279,
             
             enum_xobject_type_consensus_max = 1152,
             enum_xobject_type_consensus_min = 1025,
             
-            enum_xobject_type_data_max  = 1024,
+            enum_xobject_type_data_max  = 356,
             enum_xobject_type_data_min  = 100,
             
-            enum_xobject_type_system_contract = 1,
+            enum_xobject_type_xcons_max = 99, //for xconsensus
+            enum_xobject_type_xcons_min = 65, //for xconsensus
+            enum_xobject_type_system_contract = 64,
+            
+            enum_xobject_app_type_undefine = 1,
             
             //xbase and core modules reserved types of [0,-32767]
             enum_xobject_type_base_max  =  0,  //after that is open for application
@@ -72,16 +76,81 @@ namespace top
             enum_xobject_type_databox   = -5,
             enum_xobject_type_timer     = -6,
             enum_xobject_type_thread    = -7,
-            enum_xobject_type_dataunit  = -8,
-            enum_xobject_type_dataobj   = -9,
-            enum_xobject_type_endpoint  = -10,
-            enum_xobject_type_socket    = -11, //xsocket object
-            enum_xobject_type_connection= -12, //xconnection object
-            enum_xobject_type_node      = -13, //xnode_t object
-            enum_xobject_type_woker     = -14, //worker thread object
-            enum_xobject_type_service   = -15, //service
+            enum_xobject_type_woker     = -8,  //worker thread object
+            enum_xobject_type_vevent    = -9,  //general event
+            enum_xobject_type_ionode    = -10, //general io-node
+            enum_xobject_type_dataunit  = -11, //general data unit
+            enum_xobject_type_datapdu   = -12, //general data pdu/msg
+            enum_xobject_type_dataobj   = -13, //general data object
+            enum_xobject_type_endpoint  = -14, //general endpoint
+            enum_xobject_type_valueobj  = -15, //general property/value
+            enum_xobject_type_exe_unit  = -16, //general execution object that support 'execute(xvmethod_t & op)' or script
+
+            enum_xobject_type_socket    = -23, //xsocket object
+            enum_xobject_type_connection= -24, //xconnection object
+            enum_xobject_type_node      = -25, //xnode_t object
+            enum_xobject_type_service   = -27, //service
+
+            enum_xobject_type_vaccount  = -28, //account
+
+            enum_xobject_type_xdbgplugin = -39, //used for xdbgplugin_t 
+            //block-chain related
+            enum_xobject_type_xhashplugin = -40, //universal hash function,refer xhash_t object
+            enum_xobject_type_vqccert   = -41, //quorum certification
+            enum_xobject_type_vheader   = -42, //general virtual block header
+            enum_xobject_type_vblock    = -43, //general virtual block object
+            enum_xobject_type_vbstore   = -44, //manage vblock of db/disk
+            enum_xobject_type_vcauth    = -45, //Certificate-Authority
+            enum_xobject_type_vnodesvr  = -46, //service for Node management
+            enum_xobject_type_vcache    = -47, //cache layer with function of persist store
             
-            enum_xobject_type_min       = -32767,
+            enum_xobject_type_ventity   = -48, //general virtual entity of block body
+            enum_xobject_type_binventity= -49, //general binary entity of block body
+            enum_xobject_type_vinput    = -50, //general virtual input of block body
+            enum_xobject_type_voutput   = -51, //general virtual outpu of block body
+            enum_xobject_type_vbstate   = -52, //general virtual state of account
+            enum_xobject_type_statestore= -53, //state store
+            
+            //blockchain 'property related
+            enum_xobject_type_vproperty     = -54, //general virtual property of account
+            enum_xobject_type_vprop_token   = -55, //property of token
+            enum_xobject_type_vprop_nonce   = -56, //property of nonce for account
+            enum_xobject_type_vprop_code    = -57, //code property
+            enum_xobject_type_vprop_int8    = -58, //int8_t property
+            enum_xobject_type_vprop_int16   = -59, //int16_t property
+            enum_xobject_type_vprop_int32   = -60, //int32_t property
+            enum_xobject_type_vprop_int64   = -61, //int64_t property
+            enum_xobject_type_vprop_uint64  = -62, //unt64_t property
+            enum_xobject_type_vprop_string  = -63, //sting property
+            enum_xobject_type_vprop_hash    = -64, //hash string
+            enum_xobject_type_vprop_mkeys   = -65, //manage multiple keys
+            enum_xobject_type_vprop_mtokens = -66, //manage multiple tokens
+
+            enum_xobject_type_vprop_int8_vector     = -70, //std::vector<std::string,int8_t>
+            enum_xobject_type_vprop_int16_vector    = -71, //std::vector<std::string,int16_t>
+            enum_xobject_type_vprop_int32_vector    = -72, //std::vector<std::string,int32_t>
+            enum_xobject_type_vprop_int64_vector    = -73, //std::vector<std::string,int64_t>
+            enum_xobject_type_vprop_uint64_vector   = -74, //std::vector<std::string,uint64_t>
+            enum_xobject_type_vprop_string_vector   = -75, //std::vector<std::string,std::string>
+            
+            enum_xobject_type_vprop_int8_deque      = -76, //std::vector<std::string,int8_t>
+            enum_xobject_type_vprop_int16_deque     = -77, //std::vector<std::string,int16_t>
+            enum_xobject_type_vprop_int32_deque     = -78, //std::vector<std::string,int32_t>
+            enum_xobject_type_vprop_int64_deque     = -79, //std::vector<std::string,int64_t>
+            enum_xobject_type_vprop_uint64_deque    = -80, //std::vector<std::string,uint64_t>
+            enum_xobject_type_vprop_string_deque    = -81, //std::vector<std::string,std::string>
+            
+            enum_xobject_type_vprop_int8_map        = -82, //std::map<std::string,int8_t>
+            enum_xobject_type_vprop_int16_map       = -83, //std::map<std::string,int8_t>
+            enum_xobject_type_vprop_int32_map       = -84, //std::map<std::string,int8_t>
+            enum_xobject_type_vprop_int64_map       = -85, //std::map<std::string,int8_t>
+            enum_xobject_type_vprop_uint64_map      = -86, //std::map<std::string,int8_t>
+            enum_xobject_type_vprop_string_map      = -87, //std::map<std::string,int8_t>
+            enum_xobject_type_vprop_hashmap         = -88, //std::map<std::string,std::map<std::string,std::string>>
+            
+    
+            
+            enum_xobject_type_min       = -255,
         };
         
         //all xobject_t and subclass must create by new operation
@@ -104,21 +173,38 @@ namespace top
             inline int        get_obj_flags() const {return m_object_flags;}
             inline int        get_obj_load() const {return m_load;}
             inline int        get_last_error() const {return m_last_error;}
+            virtual std::string get_obj_name() const {return std::string();} //each object may has own name as plugin
   
             virtual bool      is_close();
             virtual bool      close(bool force_async = true);
+            
+            //note: query_interface search vertically from subclass ->parent class ->root class of this object
+            //note: query_interface not involve add_ref operation,so caller need do it manually if need keep returned ptr longer
             //caller respond to cast (void*) to related  interface ptr
             virtual void*     query_interface(const int32_t _enum_xobject_type_);
-            virtual std::string dump();  //just for debug purpose
+            
+            //plugin query and register
+            //note:query_plugin search horizontally from this  to parent for plugin
+            //caller respond to cast (xobject_t*) to related object ptr,and release_ref it as query_plugin has done add_ref before return
+            virtual xobject_t*  query_plugin(const std::string & plugin_uri){return NULL;} //uri must be formated as  ./name, ../name, */name, or name
+            //register a plugin with name of object, must finish all registeration at init stage of object for multiple-thread safe
+            virtual bool        register_plugin(xobject_t * plugin_ptr) {return false;}
+     
+            virtual std::string dump() const;  //just for debug purpose
        
             #if defined(__USE_MEMORY_POOL__)
             void* operator    new(size_t size);
             void  operator    delete(void *p);
             #endif
+            
+            inline void       set_obj_flag(const uint16_t flag)  {m_object_flags |= flag;}   //subclass need arrange those flag well
+            inline void       reset_obj_flag(const uint16_t flag){m_object_flags &= (~flag);}//subclass need ensure flag just keep 1 bit
+            inline bool       check_obj_flag(const uint16_t flag) const {return ((m_object_flags & flag) != 0);}
+            inline void       reset_obj_flags(){m_object_flags = 0;}
         protected:
             inline void       set_load(const uint8_t load){m_load = load;}
             inline void       set_last_error(const int16_t err){m_last_error = err;}
-            inline void       set_flag(const uint16_t flag){m_object_flags |= flag;}
+            bool              set_type(const int16_t _enum_xobject_type_);//use carefully, only allow set when m_object_type is 0
         private:
             //xobject may bind a xiosignal object that may trigger and wakeup the host thread when need
             //signal is going close when receive error_code as enum_xerror_code_close
@@ -131,6 +217,146 @@ namespace top
             int16_t           m_last_error;   //0:successful, present internal error when < 0 ,present system error when > 0
             uint8_t           m_closed;       //indicated whether object is closed but not destroyed yet
             uint8_t           m_load;         //[0,101],object is at invliad status when load > 100
+        };
+    
+        //extern/3rd part register into xcontext to tracking memory and xiobject'lifecycle. use it as following:
+            //step#1: xcontext_t::instance().set_debug_modes(enum_debug_mode_memory_check)
+            //step#2: xcontext_t::instance().set_debug_plugin(xdbgplugin_t * plugin);
+        class xdbgplugin_t : public xobject_t
+        {
+        protected:
+            xdbgplugin_t();
+            virtual ~xdbgplugin_t();
+        private:
+            xdbgplugin_t(const xdbgplugin_t &);
+            xdbgplugin_t & operator = (const xdbgplugin_t &);
+        public:
+            virtual void* query_interface(const int32_t type) override;
+        public://subclass need overide
+            virtual bool       on_object_create(xobject_t* target) = 0;
+            virtual bool       on_object_destroy(xobject_t* target) = 0;
+            
+            virtual bool       on_object_addref(xobject_t* target) = 0;
+            virtual bool       on_object_releaseref(xobject_t* target) = 0;
+        };
+    
+        typedef std::function<void(void*)> xfunction_t;
+        typedef void (*xfunction_ptr)(void*);
+        class xparam_t
+        {
+        public:
+            enum enum_xparam_type
+            {
+                enum_xparam_type_null       = 0, //empty
+                enum_xparam_type_int64      = 1, //int64...
+                enum_xparam_type_uint64     = 2, //uint64...
+                enum_xparam_type_uint256    = 3, //uint256..
+                enum_xparam_type_xobject    = 4, //xobject_t*
+                enum_xparam_type_xfunction  = 5, //xfunction_t*
+                enum_xparam_type_stdstring  = 6, //std::string
+                enum_xparam_type_xcall      = 7, //xcallback_t*
+            };
+        public:
+            xparam_t();
+            xparam_t(const int32_t val);
+            xparam_t(const int64_t val);
+            xparam_t(const uint64_t val);
+            xparam_t(xobject_t * val);
+            xparam_t(const uint256_t & val);
+            xparam_t(const xfunction_t & func_obj);
+            xparam_t(const xfunction_t* func_ptr);
+            xparam_t(const xfunction_ptr void_ptr);
+            xparam_t(const std::string & _strval);
+            ~xparam_t();
+            xparam_t(const xparam_t & obj);
+            xparam_t & operator = (const xparam_t & right);
+            
+            void copy_from(const xparam_t & obj);
+            void move_from(xparam_t & obj);
+            void close();
+        public:
+            inline enum_xparam_type get_type() const {return param_type;}
+            inline xobject_t*   get_object()   const {return object_ptr;}
+            inline int64_t      get_int64()    const {return int64_val;}
+            inline uint64_t     get_uint64()   const {return uint64_val;}
+            inline uint256_t*   get_uint256()  const {return uint256_ptr;}
+            inline xfunction_t* get_function() const {return function_ptr;}
+            inline const std::string& get_string()   const {return string_val;}
+        private:
+            union
+            {
+                xobject_t*      object_ptr;
+                xfunction_t*    function_ptr;
+                uint256_t*      uint256_ptr;
+                int64_t         int64_val;
+                uint64_t        uint64_val;
+            };
+            std::string         string_val;
+            enum_xparam_type    param_type;
+        };
+        
+        
+        typedef std::function<bool(xcall_t&,const int32_t thread_id,const uint64_t timenow_ms) > xcallback_t;
+        typedef bool (*xcallback_ptr)(xcall_t&,const int32_t thread_id,const uint64_t timenow_ms);
+        class xcall_t
+        {
+        public:
+            xcall_t();
+            
+            //init as std::function object
+            xcall_t(xcallback_t call);
+            xcall_t(xcallback_t call,xparam_t   param1); //init m_param1 to  param1
+            xcall_t(xcallback_t call,xparam_t   param1,xparam_t   param2); //init m_param1 and m_param2 to  param1,param2
+            xcall_t(xcallback_t call,xparam_t   param1,xparam_t   param2,xparam_t  param3);//m_param1,m_param2,m_param3 are inited
+            
+            //init as reference
+            xcall_t(xcallback_t &call);
+            xcall_t(xcallback_t &call,xparam_t    param1); //init m_param1 to  param1
+            xcall_t(xcallback_t &call,xparam_t    param1,xparam_t   param2); //init m_param1 and m_param2 to  param1,param2
+            xcall_t(xcallback_t &call,xparam_t    param1,xparam_t   param2,xparam_t   param3);//m_param1,m_param2,m_param3 are inited
+            
+            //init as function pointer
+            xcall_t(xcallback_ptr call);
+            xcall_t(xcallback_ptr call,xparam_t   param1); //init m_param1 to  param1
+            xcall_t(xcallback_ptr call,xparam_t   param1,xparam_t   param2); //init m_param1 and m_param2 to  param1,param2
+            xcall_t(xcallback_ptr call,xparam_t   param1,xparam_t   param2,xparam_t   param3);//m_param1,m_param2,m_param3 are inited
+            
+            ~xcall_t();
+            xcall_t(const xcall_t & obj);
+            xcall_t & operator = (const xcall_t & obj);
+        public://optmize for memory copy for xparam_t
+            void bind(xparam_t & param1); //m_param1 is overwrited by param1
+            void bind(xparam_t & param1,xparam_t & param2); //m_param1 and m_param2 are overwrited by param1 and param2
+            void bind(xparam_t & param1,xparam_t & param2,xparam_t & param3);//m_param1,m_param2,m_param3 are overwrited
+            void bind_result(xparam_t & result);//m_result is overwrited by  result
+            void bind_taskid(const uint32_t task_id){m_task_id = task_id;}
+            
+            void move_from(xcall_t & obj);
+            void copy_from(const xcall_t & obj);
+            void close();
+            void init(){}; //contruction already done init, here just for compatible for template
+        public:
+            xparam_t&   get_param1() {return m_param1;}
+            xparam_t&   get_param2() {return m_param2;}
+            xparam_t&   get_param3() {return m_param3;}
+            xparam_t*   get_result() {return m_result;}
+            
+            uint32_t    get_taskid() const {return m_task_id;}
+            int         get_last_err_code() const {return m_last_err_code;}
+            void        set_last_err_code(const int code){m_last_err_code = code;}
+        public:
+            bool operator()(const int32_t thread_id,const int64_t timestamp_ms)
+            {
+                return (m_function)(*this,thread_id,timestamp_ms);
+            }
+        private:
+            xcallback_t m_function;
+            xparam_t    m_param1;
+            xparam_t    m_param2;
+            xparam_t    m_param3;
+            xparam_t*   m_result;   //at most time, m_result is empty as asynchronization
+            uint32_t    m_task_id;  //taskid for this call
+            int         m_last_err_code;
         };
         
         //io-related status
@@ -151,6 +377,7 @@ namespace top
             friend class xdatabox_t;
             friend class xmailbox_t;
             friend class xiosignaler_t;
+            enum {enum_max_plugins_count = 8};
         protected:
             //note:_context must be valid until application/process exit
             xiobject_t(xcontext_t & _context,enum_xobject_type eType);//attach iobject at current thread
@@ -172,6 +399,8 @@ namespace top
             virtual bool        is_close() override;
             virtual bool        close(bool force_async = true) override; //must call close before release object,otherwise object never be cleanup
             virtual void*       query_interface(const int32_t type) override;//caller respond to cast (void*) to related  interface ptr
+            //virtual int32_t     add_ref() override;
+            //virtual int32_t     release_ref() override;
             
             //allow create own mailbox object
             bool                create_mailbox(int32_t min_batch_read = -1,int32_t max_batch_read = -1,int32_t max_queue_len = 65535);
@@ -194,6 +423,15 @@ namespace top
             virtual int32_t     signal_call(int32_t cur_thread_id = 0);                   //just wakeup the io-thread of this io object
         
             virtual int32_t     count_calls(int64_t & total_in, int64_t & total_out);  //count how many calls are pending at queue, it is useful for debug purpose
+            
+        public: //plugin query and register
+            //note:query_plugin search horizontally from this  to parent for plugin
+            //caller respond to cast (xobject_t*) to related object ptr,and release_ref it as query_plugin has done add_ref before return
+            virtual xobject_t*  query_plugin(const std::string & plugin_uri) override; //uri must be formated as  ./name, ../name, */name, or name
+            
+            //register a plugin with name of object, must finish all registeration at init stage of object for multiple-thread safe
+            virtual bool        register_plugin(xobject_t * plugin_ptr) override;
+            
         protected:
             //on_object_close be called when close command processed at host thread,logic flow: Caller(Thread#A)->Close()->Wake this object thread(B)->clean and then execute: on_object_close
             virtual bool        on_object_close(); //notify the subclass the object is closed
@@ -209,6 +447,69 @@ namespace top
             //signal is going close when receive error_code as enum_xerror_code_close
             //return false means object not handled this event
             virtual  bool     on_signal_up(int32_t error_code,int32_t cur_thread_id, uint64_t time_now_ms) override {return true;}
+            
+        public://allow send/post/dispatch general lambda function to execute
+            
+            #ifdef __GCC_50_OR_ABOVE__
+            template<class _Rp, class ..._ArgTypes>
+            bool send_call(const std::function<_Rp(_ArgTypes...)> & job_function,_ArgTypes... margs)
+            {
+                //safe to use this inside of lambda since this already been encoded into xcall
+                std::function<_Rp(_ArgTypes...)> * _job_function_ptr = new std::function<_Rp(_ArgTypes...)>(job_function);
+                auto _internal_asyn_function = [_job_function_ptr,margs...](base::xcall_t & call, const int32_t cur_thread_id,const uint64_t timenow_ms)->bool{
+                    
+                    (*_job_function_ptr)(margs...);
+                    
+                    delete _job_function_ptr; //now delete the attached function ptr
+                    return true;
+                };
+                xcall_t asyn_call(_internal_asyn_function,(xobject_t*)this);//allow use this ptr safely
+                if(send_call(asyn_call,0) == enum_xcode_successful)
+                    return true;
+                
+                return false;
+            }
+            template<class _Rp, class ..._ArgTypes>
+            bool dispatch_call(const std::function<_Rp(_ArgTypes...)> & job_function,_ArgTypes... margs)
+            {
+                //safe to use this inside of lambda since this already been encoded into xcall
+                std::function<_Rp(_ArgTypes...)> * _job_function_ptr = new std::function<_Rp(_ArgTypes...)>(job_function);
+                auto _internal_asyn_function = [_job_function_ptr,margs...](base::xcall_t & call, const int32_t cur_thread_id,const uint64_t timenow_ms)->bool{
+                    
+                    (*_job_function_ptr)(margs...);
+                    
+                    delete _job_function_ptr; //now delete the attached function ptr
+                    return true;
+                };
+                xcall_t asyn_call(_internal_asyn_function,(xobject_t*)this);//allow use this ptr safely
+                if(dispatch_call(asyn_call,0) == enum_xcode_successful)
+                    return true;
+                
+                return false;
+            }
+            template<class _Rp, class ..._ArgTypes>
+            bool post_call(const std::function<_Rp(_ArgTypes...)> & job_function,_ArgTypes... margs)
+            {
+                //safe to use this inside of lambda since this already been encoded into xcall
+                std::function<_Rp(_ArgTypes...)> * _job_function_ptr = new std::function<_Rp(_ArgTypes...)>(job_function);
+                auto _internal_asyn_function = [_job_function_ptr,margs...](base::xcall_t & call, const int32_t cur_thread_id,const uint64_t timenow_ms)->bool{
+                    
+                    (*_job_function_ptr)(margs...);
+                    
+                    delete _job_function_ptr; //now delete the attached function ptr
+                    return true;
+                };
+                xcall_t asyn_call(_internal_asyn_function,(xobject_t*)this);//allow use this ptr safely
+                if(post_call(asyn_call,0) == enum_xcode_successful)
+                    return true;
+                
+                return false;
+            }
+            #else
+            bool    send_call(const xfunction_t& job_function,void* param);
+            bool    dispatch_call(const xfunction_t& job_function,void* param);
+            bool    post_call(const xfunction_t& job_function,void* param);
+            #endif //end of __GCC_50_OR_ABOVE__
         protected:
             inline xmailbox_t*  get_mailbox() const {return m_ptr_mailbox;}
             inline xiothread_t* get_thread()  const {return m_ptr_thread;}
@@ -216,6 +517,10 @@ namespace top
             void                set_status(enum_xobject_status newstatue);
             
             uint64_t            update_time_now();//trigger refresh time to more accurately and return latest time now.carefully: it ask call at host thread
+            
+        private:
+            virtual bool        lock()  {return false;}   //if need subclass may provde lock function  and unlock
+            virtual bool        unlock(){return false;}
         private:
             xiosignaler_t*      m_ptr_signaler;        //dedicated signaler of this object,it usally be NULL
             xdatabox_t  *       m_ptr_databox;         //dedicated databox of this object, it usally be NULL
@@ -224,6 +529,143 @@ namespace top
             xcontext_t  *       m_ptr_context;         //associated with global context object
             int32_t             m_thread_id;           //the logic thread id whom this object belong to under m_pContext
             enum_xobject_status m_status;              //status of io object
+        private: //note: only support max 8 plugins for one object as considering size and reality
+            xobject_t*          m_plugins[enum_max_plugins_count];
+        };
+        
+        enum enum_xevent_route_path
+        {
+            enum_xevent_route_path_down = 0,  //event go down from higher layer/object to lower layer
+            enum_xevent_route_path_up   = 1,  //event go up   from lower  layer/object to upper layer
+        };
+        
+        enum enum_xevent_type
+        {
+            enum_xevent_app_type_max      = 32765,
+            enum_xevent_app_type_min      =  1,
+            
+            enum_xevent_type_invalid      =  0, //below event types are reserved by xbase
+
+            enum_xevent_core_type_pdu     = -5, //that is a event of pdu(usally from/to network)
+            enum_xevent_core_type_timer   = -6, //that is a system event of time,more about NTP change
+            enum_xevent_core_type_clock   = -7, //that is an event of global clock(distributed logic clock)
+            enum_xevent_core_type_create_block = -8, //that is an event to create block by upper layer and pass back to lowwer layer
+            enum_xevent_core_type_tc      = -9, //that is an event of time cert block
+        };
+        
+        //general event wrap
+        class xvevent_t : public xobject_t
+        {
+        protected:
+            xvevent_t(const int _event_type);
+            virtual ~xvevent_t();
+        private:
+            xvevent_t();
+            xvevent_t(const xvevent_t & obj);
+            xvevent_t& operator = (const xvevent_t & obj);
+        public:
+            const int           get_type()         const {return m_event_type;}
+            const int           get_priority()     const {return m_event_priority;}
+            const int           get_error_code()   const {return m_error_code;}
+            const std::string&  get_result_data()  const {return m_result_data;}
+            const xvip2_t&      get_from_xip()     const {return m_from_xip;}
+            const xvip2_t&      get_to_xip()       const {return m_to_xip;}
+            const uint64_t      get_cookie()       const {return m_event_cookie;}
+            const uint64_t      get_clock()        const {return m_event_clock;}
+            
+            void                set_from_xip(const xvip2_t & from) {m_from_xip = from;}
+            void                set_to_xip(const xvip2_t & to)      {m_to_xip = to;}
+            void                set_cookie(const uint64_t cookie){m_event_cookie = cookie;}
+            void                set_clock(const uint64_t clock){m_event_clock = clock;}
+            
+            enum_xevent_route_path get_route_path() const; //default is enum_xevent_route_path_down
+            void                   set_route_path(enum_xevent_route_path path); //mark what is direction of this event will route
+            
+            virtual  void*      query_interface(const int32_t type) override; //caller respond to cast (void*) to related  interface ptr
+        private:
+            xvip2_t             m_from_xip;    //from address
+            xvip2_t             m_to_xip;      //target address ,-1 means to broadcast everyone,and 0 means anyone may handle,
+            uint64_t            m_event_clock;  //application set latest clock(it might global clock time or height)
+            uint64_t            m_event_cookie; //application may set cookie let event carry
+            int16_t             m_event_type;   //init as 0 that is invalid
+        protected:
+            int16_t             m_event_priority;//priority level for event
+            int16_t             m_reserved_for_event;
+            
+            int16_t             m_error_code;  //default it is 0 = successful
+            std::string         m_result_data; //default it is empty
+        };
+    
+        //xionode_t manage chain structure with parent & child xiobject
+        class xionode_t : public xiobject_t
+        {
+        protected:
+            xionode_t(xionode_t & parent_object,enum_xobject_type eType);
+            xionode_t(xcontext_t & _context,const int32_t thread_id,enum_xobject_type eType);
+            virtual ~xionode_t();
+        private:
+            xionode_t();
+            xionode_t(const xionode_t &);
+            xionode_t & operator = (const xionode_t &);
+        public:
+            xionode_t*              get_parent_node()   const;
+            xionode_t*              get_child_node()    const;
+            const xvip2_t &         get_xip2_addr()     const{return m_xip2_addr;}
+            const xvip_t            get_xip2_low_addr() const{return m_xip2_addr.low_addr;}
+            const uint64_t          get_xip2_high_addr()const{return m_xip2_addr.high_addr;}
+            
+            //note: query_interface search vertically from subclass ->parent class ->root class of this object
+            //note: query_interface not involve add_ref operation,so caller need do it manually if need keep returned ptr longer
+            //caller respond to cast (void*) to related  interface ptr
+            virtual void*           query_interface(const int32_t type) override;
+            
+            //note:query_plugin search horizontally from this  to parent for plugin
+            //caller respond to cast (xobject_t*) to related object ptr,and release_ref it as query_plugin has done add_ref before return
+            virtual xobject_t*      query_plugin(const std::string & plugin_uri) override; //uri must be formated as  ./name, ../name, */name, or name
+    
+            virtual bool            is_match(const xvip2_t& xip_address);
+            
+        public://attach/detach childnode to this node at  multiple thread safe
+            virtual bool            attach_child_node(xionode_t * child_node,const xvip2_t & child_address,const std::string extra_data);
+            virtual bool            detach_child_node(xionode_t * child_node,const std::string extra_data);
+            
+        public: //multiple_thread safe
+            //push_event_up: throw event from lower(child) layer to higher(parent)
+            bool         push_event_up(const xvevent_t & event ,xionode_t* from_child,int32_t cur_thread_id,uint64_t timenow_ms);
+            
+            //push_event_down: push event from higher(parent) layer to lower(child)
+            bool         push_event_down(const xvevent_t & event ,xionode_t* from_parent,int32_t cur_thread_id,uint64_t timenow_ms);
+            
+        protected: //guanrentee be called  at object'thread,triggered by push_event_up or push_event_down
+            
+            //note: to return false may call parent'push_event_up,or stop further routing when return true
+            virtual bool            on_event_up(const xvevent_t & event,xionode_t* from_child,const int32_t cur_thread_id,const uint64_t timenow_ms);
+            //note: to return false may call child'push_event_down,or stop further routing when return true
+            virtual bool            on_event_down(const xvevent_t & event,xionode_t* from_parent,const int32_t cur_thread_id,const uint64_t timenow_ms);
+            
+        protected: //notify self about event of childnode join & leave,at self thread (so multiple thread safe)
+            
+            //notify has child-node joined this node,errorcode refer enum_error_code ,return true when the event is handled
+            virtual bool            on_child_node_join(const int32_t error_code,const int32_t cur_thread_id,const uint64_t timenow_ms,xionode_t* childnode);
+            
+            //notify has child-node left from this node,
+            virtual bool            on_child_node_leave(const int32_t error_code,const int32_t cur_thread_id,const uint64_t timenow_ms,xionode_t* childnode);
+            
+        protected://callbacked from parent node to notify result of attach & detach (note:called from parent'running thread)
+            
+            //notify this node that is joined into parent-node
+            virtual bool            on_join_parent_node(const int32_t error_code,const int32_t cur_thread_id,const uint64_t timenow_ms,const xvip2_t & alloc_address,const std::string & extra_data,xionode_t* from_parent);
+            
+            //notify this node that is left from parent-node
+            virtual bool            on_leave_parent_node(const int32_t error_code,const int32_t cur_thread_id,const uint64_t timenow_ms,const std::string & extra_data,xionode_t* from_parent);
+            
+        protected:
+            virtual bool            on_object_close() override; //notify the subclass the object is closed
+            virtual bool            reset_xip_addr(const xvip2_t & new_addr); //reserved for future to replace this xip2 address
+        private:
+            xionode_t*              m_parent_node;
+            xionode_t*              m_child_node;
+            xvip2_t                 m_xip2_addr;  //see detail definition at xbase.h for xip2
         };
         
         //for xfd_events_t
@@ -338,8 +780,8 @@ namespace top
             virtual bool        process_iohandle_attach_cmd(xcall_t & cmd,const int32_t cur_thread_id,const uint64_t timenow_ms) = 0; //must implement
             virtual bool        process_iohandle_detach_cmd(xcall_t & cmd,const int32_t cur_thread_id,const uint64_t timenow_ms) = 0; //must implement
         public:
-            //advance use case: provider(like libcur) that manage real socket handle self to share for mutiple session  so Juiohandle_t can not close them,to solve the request we have to provide reset_handle before Juiohandle_t.close()
-            //and other case Juiohandle_t and subclass may manage this handle and close it before object destroy
+            //advance use case: provider(like libcur) that manage real socket handle self to share for mutiple session  so xiohandle_t can not close them,to solve the request we have to provide reset_handle before xiohandle_t.close()
+            //and other case xiohandle_t and subclass may manage this handle and close it before object destroy
             xfd_handle_t         reset_handle();
         protected:
             void                 set_events(xfd_events_t new_event) {m_watch_events = new_event;} //refer enum_fd_event_type
@@ -351,183 +793,111 @@ namespace top
             xfd_handle_t         m_raw_handle;       //must valid and unique as system wide
             xfd_events_t         m_watch_events; //refer enum_fd_event_type,the events socket currently watching/monitor
         };
-    
-        typedef std::function<void()> xfunction_t;
-        typedef void (*xfunction_ptr)();
-        class xparam_t
-        {
-        public:
-            enum enum_xparam_type
-            {
-                enum_xparam_type_null       = 0, //empty
-                enum_xparam_type_int64      = 1, //int64...
-                enum_xparam_type_uint64     = 2, //uint64...
-                enum_xparam_type_uint256    = 3, //uint256..
-                enum_xparam_type_xobject    = 4, //xobject_t*
-                enum_xparam_type_xfunction  = 5, //xfunction_t*
-                enum_xparam_type_stdstring  = 6, //std::string
-            };
-        public:
-            xparam_t();
-            xparam_t(const int32_t val);
-            xparam_t(const int64_t val);
-            xparam_t(const uint64_t val);
-            xparam_t(xobject_t * val);
-            xparam_t(const uint256_t & val);
-            xparam_t(xfunction_t func_obj);
-            xparam_t(xfunction_t* func_ptr);
-            xparam_t(xfunction_ptr void_ptr);
-            xparam_t(const std::string & _strval);
-            ~xparam_t();
-            xparam_t(const xparam_t & obj);
-            xparam_t & operator = (const xparam_t & right);
-            
-            void copy_from(const xparam_t & obj);
-            void move_from(xparam_t & obj);
-            void close();
-        public:
-            inline enum_xparam_type get_type() const {return param_type;}
-            inline xobject_t*   get_object()   const {return object_ptr;}
-            inline int64_t      get_int64()    const {return int64_val;}
-            inline uint64_t     get_uint64()   const {return uint64_val;}
-            inline uint256_t*   get_uint256()  const {return uint256_ptr;}
-            inline xfunction_t* get_function() const {return function_ptr;}
-            inline std::string& get_string()         {return string_val;}
-        private:
-            union
-            {
-                xobject_t*      object_ptr;
-                xfunction_t*    function_ptr;
-                uint256_t*      uint256_ptr;
-                int64_t         int64_val;
-                uint64_t        uint64_val;
-            };
-            std::string         string_val;
-            enum_xparam_type    param_type;
-        };
         
-        typedef std::function<bool(xcall_t&,const int32_t thread_id,const uint64_t timenow_ms) > xcallback_t;
-        typedef bool (*xcallback_ptr)(xcall_t&,const int32_t thread_id,const uint64_t timenow_ms);
-        class xcall_t
+        //use case: xauto_ptr is mixed with std:unique_ptr and std::shared_ptr, but with limited functions
+        //usally receive the ptr of created object, and release it when go out of scope
+        template<typename T>  //T must be subclass of i_refcount_t
+        class xauto_ptr
         {
+            static_assert(std::is_base_of<xrefcount_t, T>::value, "T must be type from xrefcount_t");
         public:
-            xcall_t();
-            
-            //init as std::function object
-            xcall_t(xcallback_t call);
-            xcall_t(xcallback_t call,xparam_t   param1); //init m_param1 to  param1
-            xcall_t(xcallback_t call,xparam_t   param1,xparam_t   param2); //init m_param1 and m_param2 to  param1,param2
-            xcall_t(xcallback_t call,xparam_t   param1,xparam_t   param2,xparam_t  param3);//m_param1,m_param2,m_param3 are inited
-            
-            //init as reference
-            xcall_t(xcallback_t &call);
-            xcall_t(xcallback_t &call,xparam_t    param1); //init m_param1 to  param1
-            xcall_t(xcallback_t &call,xparam_t    param1,xparam_t   param2); //init m_param1 and m_param2 to  param1,param2
-            xcall_t(xcallback_t &call,xparam_t    param1,xparam_t   param2,xparam_t   param3);//m_param1,m_param2,m_param3 are inited
-            
-            //init as function pointer
-            xcall_t(xcallback_ptr call);
-            xcall_t(xcallback_ptr call,xparam_t   param1); //init m_param1 to  param1
-            xcall_t(xcallback_ptr call,xparam_t   param1,xparam_t   param2); //init m_param1 and m_param2 to  param1,param2
-            xcall_t(xcallback_ptr call,xparam_t   param1,xparam_t   param2,xparam_t   param3);//m_param1,m_param2,m_param3 are inited
-            
-            ~xcall_t();
-            xcall_t(const xcall_t & obj);
-            xcall_t & operator = (const xcall_t & obj);
-        public://optmize for memory copy for xparam_t
-            void bind(xparam_t & param1); //m_param1 is overwrited by param1
-            void bind(xparam_t & param1,xparam_t & param2); //m_param1 and m_param2 are overwrited by param1 and param2
-            void bind(xparam_t & param1,xparam_t & param2,xparam_t & param3);//m_param1,m_param2,m_param3 are overwrited
-            void bind_result(xparam_t & result);//m_result is overwrited by  result
-            
-            void move_from(xcall_t & obj);
-            void copy_from(const xcall_t & obj);
-            void close();
-            void init(){}; //contruction already done init, here just for compatible for template
-        public:
-            xparam_t&   get_param1() {return m_param1;}
-            xparam_t&   get_param2() {return m_param2;}
-            xparam_t&   get_param3() {return m_param3;}
-            xparam_t*   get_result() {return m_result;}
-            
-            int         get_last_err_code() const {return m_last_err_code;}
-            void        set_last_err_code(const int code){m_last_err_code = code;}
-        public:
-            bool operator()(const int32_t thread_id,const int64_t timestamp_ms)
+            xauto_ptr(std::nullptr_t)
+            :m_raw_ptr(nullptr)
             {
-                return (m_function)(*this,thread_id,timestamp_ms);
             }
-        private:
-            xcallback_t m_function;
-            xparam_t    m_param1;
-            xparam_t    m_param2;
-            xparam_t    m_param3;
-            xparam_t*   m_result;   //at most time, m_result is empty as asynchronization
-            int         m_last_err_code;
-        };
+            xauto_ptr(const T * obj_ptr)
+            :m_raw_ptr((T*)obj_ptr)
+            {
+            }
+            xauto_ptr(T & obj_ref)
+            :m_raw_ptr(&obj_ref)
+            {
+            }
+            xauto_ptr(xauto_ptr && moved)
+             :m_raw_ptr(moved.m_raw_ptr)
+            {
+                moved.m_raw_ptr = nullptr;
+            }
+            ~xauto_ptr()
+            {
+                if(m_raw_ptr != nullptr)
+                    m_raw_ptr->release_ref();
+            }
+            
+            //test whether it is valid or not
+            inline operator bool ()    const noexcept {return (m_raw_ptr != nullptr);}
+            inline bool operator == (std::nullptr_t)  const noexcept {return (m_raw_ptr == nullptr);}
+            inline bool operator != (std::nullptr_t)  const noexcept {return (m_raw_ptr != nullptr);}
+            
+            //get raw ptr
+            inline T * operator ()()   const noexcept {return m_raw_ptr;}
+            inline T *         get()   const noexcept {return m_raw_ptr;}
+            inline T* operator ->()    const noexcept {return m_raw_ptr;}
+            //test first before call it
+            inline T& operator *()     const noexcept {return *m_raw_ptr;}
         
-        //use case: receive the created object ptr, and release it when go out of scope
-        //T must be subclass of i_refcount_t
-        template<typename T>
-        class auto_obj_t
-        {
-        public:
-            auto_obj_t(T * obj_ptr)
-            :raw_ptr(obj_ptr)
+            //disable this convenient way as that compiler might do copy-elision that might cause issue,e.g. T * ptr = xauto_ptr<T> get_xxx()
+            //inline operator T* ()      const noexcept {return m_raw_ptr;}
+            //inline operator const T* ()const noexcept {return m_raw_ptr;}
+        protected:
+            xauto_ptr(const xauto_ptr & other)
+                :m_raw_ptr((T*)other.m_raw_ptr)
             {
+                if(m_raw_ptr != nullptr)
+                    m_raw_ptr->add_ref();//gain reference
             }
-            
-            auto_obj_t(T & obj_ptr)
-            :raw_ptr(&obj_ptr)
-            {
-            }
-            
-            ~auto_obj_t()
-            {
-                if(raw_ptr != 0)
-                    raw_ptr->release_ref();
-            }
-            
-            operator bool (){return (raw_ptr != NULL);}
-            T * operator ()() const {return raw_ptr;}
-            operator T* () const {return raw_ptr;}
-            operator const T* () const {return raw_ptr;}
-            
-            T* operator ->() const {return raw_ptr;}
-            T& operator *() const {return *raw_ptr;}
         private:
-            auto_obj_t();
-            auto_obj_t(const auto_obj_t &);
-            auto_obj_t & operator = (const auto_obj_t &);
-        private:
-            T * raw_ptr;
+            xauto_ptr();
+            xauto_ptr & operator = (const xauto_ptr &);
+        protected:
+            xauto_ptr & operator = (xauto_ptr && moved)
+            {
+                if (this != &moved)
+                {
+                    T * old_ptr = m_raw_ptr;
+                    m_raw_ptr = moved.m_raw_ptr;
+                    moved.m_raw_ptr = nullptr;
+                    if(old_ptr != nullptr)
+                        old_ptr->release_ref();
+                }
+                return *this;
+            }
+        protected:
+            T * m_raw_ptr;
         };
+        template<class T>
+        bool operator!=(std::nullptr_t, xauto_ptr<T> const & ptr) { return (ptr != nullptr);}
+        template<class T>
+        bool operator==(std::nullptr_t, xauto_ptr<T> const & ptr) { return (ptr == nullptr);}
+
+        template<typename T, typename ... ArgsT>
+        xauto_ptr<T>
+        make_auto_ptr(ArgsT && ... args) {
+            return xauto_ptr<T>(new T(std::forward<ArgsT>(args)... ));
+        }
         
         //auto addref when contruct and do releaes_ref when out of scope
         template<typename T>
-        class auto_reference_t : public auto_obj_t<T>
+        class auto_reference : public xauto_ptr<T>
         {
-            typedef auto_obj_t<T> base;
+            typedef xauto_ptr<T> base;
         public:
-            auto_reference_t(T * obj_ptr)
-            :base(obj_ptr)
+            auto_reference(T * obj_ptr)
+                :base(obj_ptr)
             {
-                if(obj_ptr != 0)
+                if(obj_ptr != nullptr)
                     obj_ptr->add_ref();
             }
-            
-            auto_reference_t(T & obj_ptr)
-            :base(&obj_ptr)
+            auto_reference(T & obj_ref)
+                :base(obj_ref)
             {
-                if(obj_ptr != 0)
-                    obj_ptr->add_ref();
+                obj_ref.add_ref();
             }
-            
-            ~auto_reference_t(){};  //auto_obj_t::~auto_obj_t will do release
+            ~auto_reference(){};//xauto_ptr::~xauto_ptr will do release
         private:
-            auto_reference_t();
-            auto_reference_t(const auto_reference_t &);
-            auto_reference_t & operator = (const auto_reference_t &);
+            auto_reference();
+            auto_reference(const auto_reference &);
+            auto_reference & operator = (const auto_reference &);
         };
 
     };//end of namespace of base

@@ -1,7 +1,7 @@
 #
 #  libxbase.a
 #
-#  Copyright (c) 2017-2018 Telos Foundation & contributors
+#  Copyright (c) 2018-2020 Telos Foundation & contributors
 #  Distributed under the MIT software license, see the accompanying
 #  file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -18,12 +18,13 @@ else
 endif
 
 ifdef DebugBuild
-	OPTIONS=-DLINUX -DPOSIX -DDEBUG -D_GNU_SOURCE -D__USE_INTEL_AES_NI_INSTRUCTION__
+	OPTIONS=-DLINUX -DPOSIX -DDEBUG -D_GNU_SOURCE -D__USE_INTEL_AES_NI_INSTRUCTION__  -DUSE_MONOTONIC_RAW
 else
-	OPTIONS=-DLINUX -DPOSIX -DNDEBUG -D_GNU_SOURCE -D__USE_INTEL_AES_NI_INSTRUCTION__
+	OPTIONS=-DLINUX -DPOSIX -DNDEBUG -D_GNU_SOURCE -D__USE_INTEL_AES_NI_INSTRUCTION__ -DUSE_MONOTONIC_RAW
 endif
 
 ifdef DebugBuild
+	#CFLAGS=-O0  -std=c++11 -rdynamic -g3 -ggdb -pedantic -Wno-unused-value -Wno-variadic-macros -Wno-deprecated -c -fmessage-length=0 --static -w -Wall -Wcast-align -Werror -fPIC -fno-exceptions
 	CFLAGS=-O0  -std=c++11 -rdynamic -g3 -ggdb -pedantic -Wno-unused-value -Wno-variadic-macros -Wno-deprecated -c -fmessage-length=0 --static -w -Wall -Wcast-align -Werror -fPIC
 	LFLAGS=
 	OBJDIR=./obj/debug
@@ -66,6 +67,12 @@ OBJFILES=$(OBJDIR)/xlog.o  			\
 		$(OBJDIR)/xpacket.o  		\
 		$(OBJDIR)/xobject.o  		\
 		$(OBJDIR)/xdata.o  			\
+		$(OBJDIR)/xvmethod.o  		\
+		$(OBJDIR)/xvexeunit.o  		\
+		$(OBJDIR)/xvproperty.o  	\
+		$(OBJDIR)/xvstate.o  		\
+		$(OBJDIR)/xvblock.o  		\
+		$(OBJDIR)/xvledger.o  		\
 		$(OBJDIR)/xendpoint.o  		\
 		$(OBJDIR)/xservice.o  		\
 		$(OBJDIR)/xconnection.o 	\
@@ -154,6 +161,24 @@ $(OBJDIR)/xobject.o: ../../src/xobject.cpp
 $(OBJDIR)/xdata.o: ../../src/xdata.cpp
 	$(CC) $(OPTIONS) $(CFLAGS) $(INCLUDES) -o $(OBJDIR)/xdata.o $?
 
+$(OBJDIR)/xvmethod.o: ../../src/xvmethod.cpp
+	$(CC) $(OPTIONS) $(CFLAGS) $(INCLUDES) -o $(OBJDIR)/xvmethod.o $?
+		
+$(OBJDIR)/xvexeunit.o: ../../src/xvexeunit.cpp
+	$(CC) $(OPTIONS) $(CFLAGS) $(INCLUDES) -o $(OBJDIR)/xvexeunit.o $?
+	
+$(OBJDIR)/xvproperty.o: ../../src/xvproperty.cpp
+	$(CC) $(OPTIONS) $(CFLAGS) $(INCLUDES) -o $(OBJDIR)/xvproperty.o $?
+
+$(OBJDIR)/xvstate.o: ../../src/xvstate.cpp
+	$(CC) $(OPTIONS) $(CFLAGS) $(INCLUDES) -o $(OBJDIR)/xvstate.o $?
+
+$(OBJDIR)/xvblock.o: ../../src/xvblock.cpp
+	$(CC) $(OPTIONS) $(CFLAGS) $(INCLUDES) -o $(OBJDIR)/xvblock.o $?
+	
+$(OBJDIR)/xvledger.o: ../../src/xvledger.cpp
+	$(CC) $(OPTIONS) $(CFLAGS) $(INCLUDES) -o $(OBJDIR)/xvledger.o $?
+	
 $(OBJDIR)/xendpoint.o: ../../src/xendpoint.cpp
 	$(CC) $(OPTIONS) $(CFLAGS) $(INCLUDES) -o $(OBJDIR)/xendpoint.o $?
 	

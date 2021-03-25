@@ -642,7 +642,7 @@ MBEDTLS_DEPRECATED void mbedtls_aes_encrypt( mbedtls_aes_context *ctx,
  * \brief           Deprecated internal AES block decryption function
  *                  without return value.
  *
- * \deprecated      Superseded by mbedtls_internal_aes_decrypt()
+ * \deprecate       Superseded by mbedtls_internal_aes_decrypt()
  *
  * \param ctx       The AES context to use for decryption.
  * \param input     Ciphertext block.

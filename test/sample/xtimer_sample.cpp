@@ -19,6 +19,12 @@
 using namespace top;
 
 
+#include "xtimer.h"
+class your_class : public base::xxtimer_t
+{
+    
+};
+
 class timer_demo : public base::xxtimer_t
 {
 public:
@@ -42,6 +48,7 @@ protected:
     //in_out_cur_interval_ms carry back the new setting() for timer,stop timer if <= 0 means; otherwise ask timer repeat with this new interval
     virtual bool        on_timer_fire(const int32_t thread_id,const int64_t timer_id,const int64_t current_time_ms,const int32_t start_timeout_ms,int32_t & in_out_cur_interval_ms) override
     {
+        
         printf("on_timer_fire,timer_id=%lld,current_time_ms =%lld,start_timeout_ms=%d, in_out_cur_interval_ms=%d \n",get_timer_id(), current_time_ms,start_timeout_ms,in_out_cur_interval_ms);
         return true;
     }
@@ -70,6 +77,7 @@ private:
     {
         //xinfo("------------------------[on_timer_start] timer version:%lld-----------------------------  \n",get_timer_version());
         
+        
         printf("\n");
         printf("------------------------[on_timer_start] timer version:%lld-----------------------------  \n",get_timer_version());
         return true;
@@ -77,12 +85,13 @@ private:
     
     virtual bool        on_timer_fire(const int32_t thread_id,const int64_t timer_id,const int64_t current_time_ms,const int32_t start_timeout_ms,int32_t & in_out_cur_interval_ms) override
     {
+        
         xinfo("on_timer_fire,timer_id=%lld,current_time_ms =%lld,start_timeout_ms=%d, in_out_cur_interval_ms=%d,timeversion=%lld \n",get_timer_id(), current_time_ms,start_timeout_ms,in_out_cur_interval_ms,get_timer_version());
         
         printf("on_timer_fire,timer_id=%lld,current_time_ms =%lld,start_timeout_ms=%d, in_out_cur_interval_ms=%d,timeversion=%lld \n",get_timer_id(), current_time_ms,start_timeout_ms,in_out_cur_interval_ms,get_timer_version());
 
-        stop();
-        start(1000, 0);
+        //stop();
+        //start(1000, 0);
         return true;
     }
     
@@ -109,6 +118,11 @@ int test_timer(bool is_stress_test)
     
     top::base::xiothread_t * t1 = top::base::xiothread_t::create_thread(top::base::xcontext_t::instance(),0,-1);
     
+    for(int i = 0; i < 10; ++i)
+    {
+        printf("gettimeofday=%llu \n",top::base::xtime_utl::gettimeofday());
+    }
+    
     //one-time shot of timer
     {
         timer_demo * test_1 = new fire_then_close_timer(top::base::xcontext_t::instance(),t1->get_thread_id());
@@ -126,11 +140,14 @@ int test_timer(bool is_stress_test)
             ++retry_count;
         }
         #endif
+        //test_1->stop();
         test_1->close();
         test_1->release_ref();   //just leave reference hold by internal xbase
+        
+        top::base::xtime_utl::sleep_ms(2000);
     }
     
-	//top::base::xtime_utl::sleep_ms(2000);
+	top::base::xtime_utl::sleep_ms(2000);
  
     printf("------------------------[test_timer] case 2 time at now:%lld-----------------------------  \n",base::xtime_utl::time_now_ms());
     

@@ -1,4 +1,4 @@
-// Copyright (c) 2017-2018 Telos Foundation & contributors
+// Copyright (c) 2018-2020 Telos Foundation & contributors
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -167,6 +167,9 @@ namespace top
             
             static std::string   to_hex(const std::string & input);//convert string to hex code.e.g "123" -> "7B"
             
+            static const std::string   uint642hex(uint64_t uint64value);       //unint64 to string of hex format
+            static const uint64_t      hex2uint64(const std::string & hex_str);//convert hex string to int64 integer
+            
             //alpha code: map ['a','b',... 'x','y','z']  to [0,1,...25]
             //e.g. 25= "z",26 = "ba",261 = "kb"
             static std::string   number_to_alpha(const int32_t number); //encode number to alpha
@@ -191,26 +194,30 @@ namespace top
             static std::string   urlencode(std::map<std::string,std::string> & key_value_params);
         };
         
+        //note: treat UTC = GMT at API level
         class xtime_utl
         {
         public:
             //offset used to force to syncronize the time,just use by internally
             static int64_t      time_offset(int64_t offset);
-            static int64_t      time_now_ms();  //at Nano level of absolute time as local machine
+            static int64_t      time_now_ms();  //at Nano level of absolute time as local machine,not affected by NTP syn
             static int64_t      time_now_ms(const int64_t gmt_time_ms);  //at Nano level of absolute time as local machine
             
+            //CLOCK_MONOTONIC_RAW mode not affected by NTP syn
             static int64_t      gmttime_ms();   //at ms level of UTC base time
             static int64_t      gmttime_ms(const int64_t tick_time_from_time_now_ms);   //at ms level of UTC base time
             //relative time
             static uint32_t     rtime_ms();
             
             static int          sleep_ms (uint32_t ms_time); //sleep at current thread until timeout
-             
-            static time_t       gmttime();  //return how many seconds since 1970/01/01 and 00.00.00 at local timezone
+            
+            //affected by NTP time sync
+            static time_t       gmttime();  //return how many seconds since 1970/01/01 and 00.00.00 at abosulte timezone
             static time_t       gmttime(time_t local);  //based local time
             static std::string  gmt_date();   //conver gmt date to string
             static std::string  gmt_date_time(); //convert GMT ate and hours/minutes to string
             
+            //affected by NTP time sync
             static int64_t      gettimeofday();   //how many seconds since 1970/01/01 and 00.00.00 at abosulte timezone
             static int64_t      gettimeofday_ms();//how many ms since 1970/01/01 and 00.00.00 at abosulte timezone
             static int          gettimeofday(struct timeval *tv); //wrap for standard c api 
@@ -262,6 +269,12 @@ namespace top
         {
         public:
             static int     sys_cpu_cores(); //return how many cpu cores are avaible to use
+            
+            static uint32_t  get_sys_process_id(); //query id of current process
+            static uint32_t  get_sys_thread_id();  //query id of current calling thread
+            
+            static uint64_t     get_sys_random_number(); //generate a random number by system ' kernel,it read /dev/urandom for Linux and MacOS
+            static std::string  get_sys_random_string(const uint32_t string_size); //generate random string by system ' kernel,it read /dev/urandom for Linux and MacOS
             
             #ifndef __WIN_PLATFORM__ 
             //cpu_index identify cpu core ,valid range is [0- sys_cpu_cores())
@@ -318,7 +331,10 @@ namespace top
             /*1. init last_cpu_used_since_boot and last_cpu_idle_since_boot = 0 at begin
              2. get_cpu_load(last_cpu_used_since_boot,total_cpu_idle_since_boot)
              */
+            //return percentage of total cpu usage and detail 
             static  int     get_cpu_load(uint64_t & last_cpu_used_since_boot,uint64_t & last_cpu_idle_since_boot); //return [0-100]
+            static  int     get_cpu_load(uint64_t & last_cpu_used_since_boot,uint64_t & last_cpu_idle_since_boot,int & totalUser_percent, int & totalUserLow_percent, int & totalSys_percent, int & totalIdle_percent, int & totalIOWait_percent, int & totalIrq_percent,int &  totalSoftIrq_percent, int & totalSteal_percent);
+            
             static  int     get_memory_load(int64_t & free_memory_size);  //return [0-100] as percentage for whole system
             static  bool    get_sys_net_info(const std::string interface_name, uint64_t & rx_bytes, uint64_t & rx_packets, uint64_t & rx_drop_packets, uint64_t & tx_bytes, uint64_t & tx_packets, uint64_t & tx_drop_packets); //return false if fail
             

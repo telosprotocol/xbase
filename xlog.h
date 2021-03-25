@@ -1,4 +1,4 @@
-// Copyright (c) 2017-2018 Telos Foundation & contributors
+// Copyright (c) 2018-2020 Telos Foundation & contributors
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -15,6 +15,7 @@ namespace top
 {
     namespace base
     {
+        
         //TODO: add logic to manage generated log files, e.g. clean the old log files to save disk
         //implement a lock-free log system through system write(append mode)
         class xlogger_t
@@ -35,6 +36,9 @@ namespace top
             bool    set_log_file_hook(_func_create_log_file_cb _call_back);
             bool    set_log_trace_hook(_func_hook_trace_cb _call_back);
             int     set_trace_lines_per_file(uint32_t max_tracelines_per_file);//decide to rotate to new log file after how many lines
+            
+            int     dup_trace_to_terminal(bool turn_on); //copy log to terminal as well if turn_on for debug build. as default it is off
+
         public:
             void    dbg(const char* msg, ...);
             void    info(const char* msg, ...);
@@ -60,13 +64,14 @@ namespace top
             _func_create_log_file_cb  m_create_log_file_callback;
         private:
             int          m_atom_lock;
+            int          m_dup_to_terminal;  //copy log to terminal as well if turn_on for debug build
             uint32_t     m_log_lines;  //how many lines are traced out per file
             uint32_t     m_max_log_lines_per_file;
             uint32_t     m_log_file_index;
             int32_t      m_log_file_handle;
             std::string  m_log_file_name;    //the name and path of file
             std::string  m_log_dir;          //dir of log files
-            std::string  m_module_name;     //module name as file name
+            std::string  m_module_name;      //module name as file name
         };
     }
 } //end of namespace top

@@ -1,4 +1,4 @@
-// Copyright (c) 2017-2018 Telos Foundation & contributors
+// Copyright (c) 2018-2020 Telos Foundation & contributors
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -253,7 +253,7 @@ namespace top
                 #ifdef __CHECK_XQUEUE_EMPTY__
                 if(empty())
                 {
-                    xerror("Jupipe::pop_front,critical bug,front_offset(%d) vs blackoffset(%d); and front_block(%lld) vs back_block(%lld); and last_item_id(%llu),total_readout_packets(%lld) vs total_writein_packets(%lld)",front_offset,back_offset,(int64_t)front_block,(int64_t)back_block,last_item_id.load(),total_readout_packets,total_writein_packets);
+                    xerror("Jupipe::pop_front,critical bug,front_offset(%d) vs blackoffset(%d); and front_block(%lld) vs back_block(%lld); and last_item_id(%llu),total_readout_packets(%lld) vs total_writein_packets(%lld)",front_offset,back_offset,(int64_t)front_block,(int64_t)back_block,last_item_id.load(),total_readout_packets.load(),total_writein_packets.load());
                     return 0;
                 }
                 #endif
@@ -284,7 +284,7 @@ namespace top
                 }
                 else
                 {
-                    xerror("Jupipe::pop_front(),next is null,front_offset(%d) vs blackoffset(%d); and front_block(%lld) vs back_block(%lld); and last_item_id(%llu),total_readout_packets(%lld) vs total_writein_packets(%lld)",front_offset,back_offset,(int64_t)front_block,(int64_t)back_block,last_item_id.load(),total_readout_packets,total_writein_packets);
+                    xerror("Jupipe::pop_front(),next is null,front_offset(%d) vs blackoffset(%d); and front_block(%lld) vs back_block(%lld); and last_item_id(%llu),total_readout_packets(%lld) vs total_writein_packets(%lld)",front_offset,back_offset,(int64_t)front_block,(int64_t)back_block,last_item_id.load(),total_readout_packets.load(),total_writein_packets.load());
                     --front_offset; //stay at last item for exception
                 }
                 
@@ -345,7 +345,15 @@ namespace top
                 
                 if( (max_queue_size > 0) && (size() > max_queue_size) )
                 {
-                    xwarn("xueue::push_back,unqueue(%d) is > max queue size(%d)",size(),max_queue_size);
+                    if(empty())
+                    {
+                        xwarn("xueue::push_back,unqueue(%d) is > max_queue_size(%d),but it is a empty queue and total_writein_packets(%lld) != total_readout_packets(%lld)",size(),max_queue_size,total_writein_packets.load(),total_readout_packets.load());
+                        total_writein_packets = total_readout_packets.load(); //correct counting,here is ok do this quick correct if happened
+                    }
+                    else
+                    {
+                        xwarn("xueue::push_back,unqueue(%d) is > max queue size(%d)",size(),max_queue_size);
+                    }
                     return 0;
                 }
                 
@@ -366,6 +374,7 @@ namespace top
                     if(end_block_ptr != NULL)
                     {
                         end_block_ptr->next = NULL;
+                        end_block_ptr->block_id = (uint32_t)(++last_block_id);//update block id
                         
                         end_block->next = end_block_ptr;
                         end_block = end_block_ptr;
@@ -401,7 +410,16 @@ namespace top
                 
                 if( (max_queue_size > 0) && (size() > max_queue_size) )
                 {
-                    xwarn("xueue::push_back(2),unqueue(%d) is > max queue size(%d)",size(),max_queue_size);
+                    if(empty())
+                    {
+                        xerror("xueue::push_back2,unqueue(%d) > max_queue_size(%d),but it is empty queue and total_writein_packets(%lld) != total_readout_packets(%lld)",size(),max_queue_size,total_writein_packets.load(),total_readout_packets.load());
+                        
+                        total_writein_packets = total_readout_packets.load();//correct counting,here is ok do this quick correct if happened
+                    }
+                    else
+                    {
+                        xwarn("xueue::push_back2,unqueue(%d) is > max queue size(%d)",size(),max_queue_size);
+                    }
                     return 0;
                 }
                 
@@ -433,6 +451,7 @@ namespace top
                             if(next_ptr != NULL)
                             {
                                 next_ptr->next = NULL;
+                                next_ptr->block_id = (uint32_t)(++last_block_id);//update block id
                                 
                                 temp_end_block->next = next_ptr;
                                 temp_end_block = next_ptr;
@@ -565,8 +584,8 @@ namespace top
             //may be called at any thread
             int32_t  size()
             {
-                const int64_t in_packets =  _VOLATILE_ACCESS_(int64_t,total_writein_packets);
-                const int64_t out_packets =  _VOLATILE_ACCESS_(int64_t,total_readout_packets);;
+                const int64_t in_packets = total_writein_packets;
+                const int64_t out_packets = total_readout_packets;
                 if(in_packets >= out_packets)
                 {
                     return (int32_t)(in_packets - out_packets);
@@ -649,9 +668,9 @@ namespace top
         private:
             std::atomic<int32_t>  m_ref_count;
             int32_t               last_readout_packets;   //just use for count purpose,and do flow control
-            int64_t               total_readout_packets;  //total packets be read out
+            std::atomic<int64_t>  total_readout_packets;  //total packets be read out
             char cacheline_align5[_CONST_CPU_CACHE_LINE_BYTES_];
-            int64_t               total_writein_packets;  //total packets be pushed
+            std::atomic<int64_t>  total_writein_packets;  //total packets be pushed
         };
         
         //Note,T must be structure without virtual table/function

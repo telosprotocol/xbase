@@ -1,4 +1,4 @@
-// Copyright (c) 2017-2018 Telos Foundation & contributors
+// Copyright (c) 2018-2020 Telos Foundation & contributors
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -80,16 +80,16 @@ namespace  top
             inline enum_endpoint_type      get_type() const {return m_endpoint_type;}
             inline xendpoint_t*            get_parent() const{return m_parent;}
             inline void                    get_xip_address(uint64_t & low64bit_addr,uint64_t & high64bit_addr) const;
-            inline uint64_t                get_xip_address_low64bit() const {return m_xip_address_low;}   //low  64bit xip address
-            inline uint64_t                get_xip_address_high64bit() const {return m_xip_address_high;} //high 64bit xip address
+            inline uint64_t                get_xip_address_low64bit() const {return m_xip2_address.low_addr;}
+            inline uint64_t                get_xip_address_high64bit() const {return m_xip2_address.high_addr;}
+            inline const xvip2_t  &        get_xip2_address() const {return m_xip2_address;}
             inline uint16_t                get_xip_port() const {return m_xip_port;}
             inline uint32_t                get_access_token() const {return m_access_token;}
             inline uint64_t                get_last_keeplive_time() const {return m_last_keeplive_time;}
             
-            inline int32_t                 get_network_id() const {return m_network_id;}
-            inline int32_t                 get_network_version() const {return m_network_ver;}
-            inline uint32_t                get_interface_id() const {return m_interface_id;}
             inline int32_t                 get_network_type() const {return m_network_type;}
+            inline int32_t                 get_network_version() const {return m_network_ver;}
+            inline int32_t                 get_network_id() const {return m_network_id;}
             inline uint32_t                get_server_id() const {return m_server_id;}
             inline int32_t                 get_process_id() const {return m_process_id;}
             inline int32_t                 get_router_id() const {return m_router_id;}
@@ -135,7 +135,7 @@ namespace  top
             //subcalss may overwrite this logic when multiple xip address bind to one endpoint
             virtual bool            is_match(const uint64_t target_xip_address_low,const uint64_t target_xip_address_high)
             {
-                return (is_xip_address_equal(target_xip_address_low,m_xip_address_low) && (target_xip_address_high == m_xip_address_high));
+                return (((target_xip_address_low << 3) == (m_xip2_address.low_addr << 3)) && (target_xip_address_high == m_xip2_address.high_addr));
             }
             
             //if cur_thread_id 0 xsocket_t do query current thread id again. same for timenow_ms.
@@ -215,17 +215,15 @@ namespace  top
         private: //as default 1-1 mode with 1 public address
             xendpoint_t*            m_parent;           //point to upper layer,private to avoid confilict with juxendpoint_t
             xendpoint_t*            m_child;            //point to next layer,private to avoid confilict with Juendgroup_t
-            uint64_t                m_xip_address_low;  //low 64bit address
-            uint64_t                m_xip_address_high; //high 64bit address
+            xvip2_t                 m_xip2_address;     //full xip2 address
             uint16_t                m_xip_port;         //xip bind or listen port
             uint16_t                m_reserved16;
             uint32_t                m_access_token;     //allow free access if it is 0.paired with m_xip_address
         protected:  //performance-help property that get from m_xip_address_low
-            int32_t                 m_network_id;       //24bit:id,it is 0 as default
-            int32_t                 m_network_ver;      //refer XIP2
-            uint32_t                m_interface_id;
-            uint32_t                m_server_id;        //tell where is for this router
             enum_xnetwork_type      m_network_type;
+            int32_t                 m_network_ver;      //refer XIP2
+            int32_t                 m_network_id;       //24bit:id,it is 0 as default
+            uint32_t                m_server_id;        //tell where is for this router
             int32_t                 m_process_id;
             int32_t                 m_router_id;
             int32_t                 m_switcher_id;
@@ -442,7 +440,6 @@ namespace  top
             xendpoint_t*   find_endpoint(const uint64_t target_xip_addr_low64bit,const uint64_t target_xip_addr_high64bit,uint32_t & auth_token);
             
             virtual void*  query_interface(const int32_t type) override; //caller respond to cast (void*) to related  interface ptr
-            virtual bool   is_match(const uint64_t target_address_low64bit,const uint64_t target_address_high64bit) override;
         protected:
             virtual bool   on_object_close() override; //notify the subclass the object is closed
             virtual bool   on_lrouter_up(xlrouter_t * local_router);    //router is going to work

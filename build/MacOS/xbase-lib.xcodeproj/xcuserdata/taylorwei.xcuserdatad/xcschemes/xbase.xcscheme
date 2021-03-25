@@ -29,17 +29,6 @@
       shouldUseLaunchSchemeArgsEnv = "YES">
       <Testables>
       </Testables>
-      <MacroExpansion>
-         <BuildableReference
-            BuildableIdentifier = "primary"
-            BlueprintIdentifier = "994F8F5921AFCE9700EFA18F"
-            BuildableName = "xbase-test"
-            BlueprintName = "xbase-test"
-            ReferencedContainer = "container:xbase-test.xcodeproj">
-         </BuildableReference>
-      </MacroExpansion>
-      <AdditionalOptions>
-      </AdditionalOptions>
    </TestAction>
    <LaunchAction
       buildConfiguration = "Debug"
@@ -51,18 +40,15 @@
       debugDocumentVersioning = "YES"
       debugServiceExtension = "internal"
       allowLocationSimulation = "YES">
-      <BuildableProductRunnable
-         runnableDebuggingMode = "0">
+      <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "994F8F5921AFCE9700EFA18F"
-            BuildableName = "xbase-test"
-            BlueprintName = "xbase-test"
-            ReferencedContainer = "container:xbase-test.xcodeproj">
+            BlueprintIdentifier = "99EF74DB21127072005D7FCE"
+            BuildableName = "libxbase.a"
+            BlueprintName = "xbase"
+            ReferencedContainer = "container:xbase-lib.xcodeproj">
          </BuildableReference>
-      </BuildableProductRunnable>
-      <AdditionalOptions>
-      </AdditionalOptions>
+      </MacroExpansion>
    </LaunchAction>
    <ProfileAction
       buildConfiguration = "Release"

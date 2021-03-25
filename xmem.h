@@ -1,4 +1,4 @@
-// Copyright (c) 2017-2018 Telos Foundation & contributors
+// Copyright (c) 2018-2020 Telos Foundation & contributors
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -12,6 +12,7 @@
 #include <set>
 #include <string>
 #include <vector>
+#include <deque>
 #include <algorithm>
 #include "xbase.h"
 #include "xatom.h"
@@ -809,6 +810,7 @@ namespace top
             //to save space and increase safty, here provide function for short string(max as 64K)
             int32_t write_short_string(const std::string & value) //write in data
             {
+                xdbgassert(value.size() < 65536);
                 const uint16_t nStrSize = (uint16_t)value.size();
                 reserved_push_back(nStrSize + sizeof(uint16_t));
                 *this << nStrSize;
@@ -1165,7 +1167,7 @@ namespace top
             void       reset(int init_offset); //the remaining data will lost but the memory still valid
         public:
             int32_t    copy_from(xbuffer_t & obj);
-        public:
+        public://serialize function for basic tyep of data
             int32_t operator << (const bool value)
             {
                 reserve_size(sizeof(int8_t));
@@ -1176,7 +1178,7 @@ namespace top
             }
             
             #ifdef __XSTRICT_64BIT_ADDRESS_ACCESS___
-            template<class T>
+            template<class T, typename std::enable_if<!std::is_enum<T>::value>::type * = nullptr>
             int32_t operator << (const T & value) //T must be natvie type like int8/int16/int32/int64/uint8/uint16/uint32/uint64
             {
                 reserve_size(sizeof(T));
@@ -1260,6 +1262,13 @@ namespace top
             }
             #endif //end of __XSTRICT_64BIT_ADDRESS_ACCESS___
             
+            template<typename T, typename std::enable_if<std::is_enum<T>::value>::type * = nullptr>
+            int32_t operator << (T const& value) {
+                using Raw_Type = typename std::underlying_type<T>::type;
+                Raw_Type rt = (Raw_Type) value;
+                return ((*this) << rt);
+            }
+
             //GCC 4.7.1+ or Clang support extend 128bit type
             #if defined(__LINUX_PLATFORM__) || defined(__MAC_PLATFORM__)
             int32_t operator << (const __uint128_t & value)
@@ -1431,7 +1440,7 @@ namespace top
             {
                 if(size() < (int32_t)sizeof(int8_t))
                 {
-                    xerror("xblock_t >> bool fail as unenough data(%d)",size());
+                    xerror("xbuffer_t >> bool fail as unenough data(%d)",size());
                     throw enum_xerror_code_bad_packet;
                     return 0;
                 }
@@ -1442,12 +1451,12 @@ namespace top
             }
             
             #ifdef __XSTRICT_64BIT_ADDRESS_ACCESS___
-            template<class T>
+            template<class T, typename std::enable_if<!std::is_enum<T>::value>::type * = nullptr>
             int32_t operator >> (T & value) //T must be native type like  int8/int16/int32/int64/uint8/uint16/uint32/uint64
             {
                 if(size() < (int32_t)sizeof(T))
                 {
-                    xerror("xblock_t >> T(%d) fail as unenough data(%d)",sizeof(T),size());
+                    xerror("xbuffer_t >> T(%d) fail as unenough data(%d)",sizeof(T),size());
                     throw enum_xerror_code_bad_packet;
                     return 0;
                 }
@@ -1460,7 +1469,7 @@ namespace top
             {
                 if(size() < (int32_t)sizeof(char))
                 {
-                    xerror("xblock_t >> char fail as unenough data(%d)",size());
+                    xerror("xbuffer_t >> char fail as unenough data(%d)",size());
                     throw enum_xerror_code_bad_packet;
                     return 0;
                 }
@@ -1473,7 +1482,7 @@ namespace top
             {
                 if(size() < (int32_t)sizeof(int8_t))
                 {
-                    xerror("xblock_t >> int8_t fail as unenough data(%d)",size());
+                    xerror("xbuffer_t >> int8_t fail as unenough data(%d)",size());
                     throw enum_xerror_code_bad_packet;
                     return 0;
                 }
@@ -1487,7 +1496,7 @@ namespace top
             {
                 if(size() < (int32_t)sizeof(int16_t))
                 {
-                    xerror("xblock_t >> int16_t fail as unenough data(%d)",size());
+                    xerror("xbuffer_t >> int16_t fail as unenough data(%d)",size());
                     throw enum_xerror_code_bad_packet;
                     return 0;
                 }
@@ -1500,7 +1509,7 @@ namespace top
             {
                 if(size() < (int32_t)sizeof(int32_t))
                 {
-                    xerror("xblock_t >> int32_t fail as unenough data(%d)",size());
+                    xerror("xbuffer_t >> int32_t fail as unenough data(%d)",size());
                     throw enum_xerror_code_bad_packet;
                     return 0;
                 }
@@ -1513,7 +1522,7 @@ namespace top
             {
                 if(size() < (int32_t)sizeof(int64_t))
                 {
-                    xerror("xblock_t >> int64_t fail as unenough data(%d)",size());
+                    xerror("xbuffer_t >> int64_t fail as unenough data(%d)",size());
                     throw enum_xerror_code_bad_packet;
                     return 0;
                 }
@@ -1527,7 +1536,7 @@ namespace top
             {
                 if(size() < (int32_t)sizeof(uint8_t))
                 {
-                    xerror("xblock_t >> uint8_t fail as unenough data(%d)",size());
+                    xerror("xbuffer_t >> uint8_t fail as unenough data(%d)",size());
                     throw enum_xerror_code_bad_packet;
                     return 0;
                 }
@@ -1540,7 +1549,7 @@ namespace top
             {
                 if(size() < (int32_t)sizeof(uint16_t))
                 {
-                    xerror("xblock_t >> uint16_t fail as unenough data(%d)",size());
+                    xerror("xbuffer_t >> uint16_t fail as unenough data(%d)",size());
                     throw enum_xerror_code_bad_packet;
                     return 0;
                 }
@@ -1553,7 +1562,7 @@ namespace top
             {
                 if(size() < (int32_t)sizeof(uint32_t))
                 {
-                    xerror("xblock_t >> uint32_t fail as unenough data(%d)",size());
+                    xerror("xbuffer_t >> uint32_t fail as unenough data(%d)",size());
                     throw enum_xerror_code_bad_packet;
                     return 0;
                 }
@@ -1566,7 +1575,7 @@ namespace top
             {
                 if(size() < (int32_t)sizeof(uint64_t))
                 {
-                    xerror("xblock_t >> uint64_t fail as unenough data(%d)",size());
+                    xerror("xbuffer_t >> uint64_t fail as unenough data(%d)",size());
                     throw enum_xerror_code_bad_packet;
                     return 0;
                 }
@@ -1577,13 +1586,23 @@ namespace top
             }
             #endif //end of __XSTRICT_64BIT_ADDRESS_ACCESS___
             
+            template <typename T, typename std::enable_if<std::is_enum<T>::value>::type * = nullptr>
+            int32_t operator>>(T & value)
+            {
+                using Raw_Type = typename std::underlying_type<T>::type;
+                Raw_Type rt;
+                auto s = ((*this) >> rt);
+                value = (T)rt;
+                return s;
+            }
+
             //GCC 4.7.1+ or Clang support extend 128bit type
             #if defined(__LINUX_PLATFORM__) || defined(__MAC_PLATFORM__)
             int32_t operator >> (__uint128_t & value) //read out data
             {
                 if(size() < (int32_t)sizeof(__uint128_t))
                 {
-                    xerror("xblock_t >> __uint128_t fail as unenough data(%d)",size());
+                    xerror("xbuffer_t >> __uint128_t fail as unenough data(%d)",size());
                     throw enum_xerror_code_bad_packet;
                     return 0;
                 }
@@ -1600,7 +1619,7 @@ namespace top
                 uint32_t memory_size = _predefine_bits_ / 8; //convert bits to bytes
                 if((uint32_t)size() < memory_size)
                 {
-                    xerror("xblock_t >> xuint_t<%d> fail as unenough data(%d)",_predefine_bits_,size());
+                    xerror("xbuffer_t >> xuint_t<%d> fail as unenough data(%d)",_predefine_bits_,size());
                     throw enum_xerror_code_bad_packet;
                     return 0;
                 }
@@ -1626,7 +1645,7 @@ namespace top
                 }
                 if((uint32_t)size() < nStrSize)
                 {
-                    xerror("xblock_t >> string(%d) fail as unenough data(%d)",nStrSize,size());
+                    xerror("xbuffer_t >> string(%d) fail as unenough data(%d)",nStrSize,size());
                     throw enum_xerror_code_bad_packet;
                     return sizeof(uint32_t);
                 }
@@ -1646,7 +1665,7 @@ namespace top
                 const uint32_t ask_size = item_size;
                 if((uint32_t)size() < ask_size)
                 {
-                    xerror("xblock_t >> std::vector<T>(%d) fail as unenough data(%d)",item_size,size());
+                    xerror("xbuffer_t >> std::vector<T>(%d) fail as unenough data(%d)",item_size,size());
                     throw enum_xerror_code_bad_packet;
                     return sizeof(uint32_t);
                 }
@@ -1668,7 +1687,7 @@ namespace top
                 *this >> item_size;
                 if((uint32_t)size() < item_size * sizeof(char))
                 {
-                    xerror("xblock_t >> std::vector<char>(%d) fail as unenough data(%d)",item_size,size());
+                    xerror("xbuffer_t >> std::vector<char>(%d) fail as unenough data(%d)",item_size,size());
                     throw enum_xerror_code_bad_packet;
                     return sizeof(uint32_t);
                 }
@@ -1686,7 +1705,7 @@ namespace top
                 *this >> item_size;
                 if((uint32_t)size() < item_size * sizeof(char))
                 {
-                    xerror("xblock_t >> std::vector<int8_t>(%d) fail as unenough data(%d)",item_size,size());
+                    xerror("xbuffer_t >> std::vector<int8_t>(%d) fail as unenough data(%d)",item_size,size());
                     throw enum_xerror_code_bad_packet;
                     return sizeof(uint32_t);
                 }
@@ -1704,7 +1723,7 @@ namespace top
                 *this >> item_size;
                 if((uint32_t)size() < item_size * sizeof(uint8_t))
                 {
-                    xerror("xblock_t >> std::vector<uint8_t>(%d) fail as unenough data(%d)",item_size,size());
+                    xerror("xbuffer_t >> std::vector<uint8_t>(%d) fail as unenough data(%d)",item_size,size());
                     throw enum_xerror_code_bad_packet;
                     return sizeof(uint32_t);
                 }
@@ -1725,7 +1744,7 @@ namespace top
                 const uint32_t ask_size = item_size;
                 if((uint32_t)size() < ask_size)
                 {
-                    xerror("xblock_t >> std::list<T>(%d) fail as unenough data(%d)",item_size,size());
+                    xerror("xbuffer_t >> std::list<T>(%d) fail as unenough data(%d)",item_size,size());
                     throw enum_xerror_code_bad_packet;
                     return sizeof(uint32_t);
                 }
@@ -1749,7 +1768,7 @@ namespace top
                 const uint32_t ask_size = item_size;
                 if((uint32_t)size() < ask_size)
                 {
-                    xerror("xblock_t >> std::set<T>(%d) fail as unenough data(%d)",item_size,size());
+                    xerror("xbuffer_t >> std::set<T>(%d) fail as unenough data(%d)",item_size,size());
                     throw enum_xerror_code_bad_packet;
                     return sizeof(uint32_t);
                 }
@@ -1773,7 +1792,7 @@ namespace top
                 const uint32_t ask_size = (2)* item_size;//minimal size
                 if((uint32_t)size() < ask_size)
                 {
-                    xerror("xblock_t >> std::map<KEY,VALUE>(%d) fail as unenough data(%d)",item_size,size());
+                    xerror("xbuffer_t >> std::map<KEY,VALUE>(%d) fail as unenough data(%d)",item_size,size());
                     throw enum_xerror_code_bad_packet;
                     return sizeof(uint32_t);
                 }
@@ -1798,7 +1817,7 @@ namespace top
                 const uint32_t ask_size = (2)* item_size;//minimal size
                 if((uint32_t)size() < ask_size)
                 {
-                    xerror("xblock_t >> std::unordered_map<KEY,VALUE>(%d) fail as unenough data(%d)",item_size,size());
+                    xerror("xbuffer_t >> std::unordered_map<KEY,VALUE>(%d) fail as unenough data(%d)",item_size,size());
                     throw enum_xerror_code_bad_packet;
                     return sizeof(uint32_t);
                 }
@@ -1828,7 +1847,7 @@ namespace top
                 
                 if((uint32_t)size() < block_size)
                 {
-                    xerror("xblock_t >> xblock_t(%d) fail as unenough data(%d)",block_size,size());
+                    xerror("xbuffer_t >> xbuffer_t(%d) fail as unenough data(%d)",block_size,size());
                     throw enum_xerror_code_bad_packet;
                     return sizeof(uint32_t);
                 }
@@ -1858,6 +1877,7 @@ namespace top
                 }
             }
             
+        public://specific function for short and tiny string
             //to save space and increase safty, here provide function for short string(max as 64K)
             int32_t read_short_string(std::string & value) //read out data
             {
@@ -1876,7 +1896,7 @@ namespace top
                 }
                 if((uint32_t)size() < nStrSize)
                 {
-                    xerror("xblock_t >> string(%d) fail as unenough data(%d)",nStrSize,size());
+                    xerror("xbuffer_t >> string(%d) fail as unenough data(%d)",nStrSize,size());
                     throw enum_xerror_code_bad_packet;
                     return sizeof(uint16_t);
                 }
@@ -1884,9 +1904,11 @@ namespace top
                 pop_front(nStrSize);
                 return  (nStrSize + sizeof(uint16_t));
             }
+            
             //to save space and increase safty, here provide function for short string(max as 64K)
             int32_t write_short_string(const std::string & value) //write in data
             {
+                xdbgassert(value.size() < 65536);
                 const uint16_t nStrSize = (uint16_t)value.size();
                 reserve_size(nStrSize + sizeof(uint16_t));
                 *this << nStrSize;
@@ -1899,6 +1921,171 @@ namespace top
                 {
                     return sizeof(uint16_t);
                 }
+            }
+            
+            //to save space and increase safty, here provide function for tiny string(max as 255 bytes)
+            int32_t write_tiny_string(const std::string & value) //write in data
+            {
+                xdbgassert(value.size() < 256);
+                const uint8_t nStrSize = (uint8_t)value.size();
+                reserve_size(nStrSize + sizeof(uint8_t));
+                *this << nStrSize;
+                if(nStrSize > 0)
+                {
+                    push_back((uint8_t*)value.data(),nStrSize);
+                    return (nStrSize + sizeof(uint8_t));
+                }
+                else
+                {
+                    return sizeof(uint8_t);
+                }
+            }
+            //to save space and increase safty, here provide function for tiny string(max as 255 bytes)
+            int32_t read_tiny_string(std::string & value) //read out data
+            {
+                uint8_t nStrSize = 0;
+                int32_t nRet = *this >> nStrSize;
+                if(0 == nRet) //dont have any data
+                {
+                    xassert(nRet > 0);
+                    throw enum_xerror_code_bad_packet;
+                    return 0;
+                }
+                if(0 == nStrSize) //empty string
+                {
+                    value.clear();
+                    return sizeof(uint8_t);
+                }
+                if((uint32_t)size() < nStrSize)
+                {
+                    xerror("xbuffer_t >> string(%d) fail as unenough data(%d)",nStrSize,size());
+                    throw enum_xerror_code_bad_packet;
+                    return sizeof(uint8_t);
+                }
+                value.assign((char*)data(),nStrSize);
+                pop_front(nStrSize);
+                return  (nStrSize + sizeof(uint8_t));
+            }
+            
+        public://-------------variable integer,string vector,queue and map at compatct mode---------------//
+            /**
+             * ZigZag encoding that maps signed integers with a small absolute value
+             * to unsigned integers with a small (positive) values. Without this,
+             * encoding negative values using Varint would use up 9 or 10 bytes.
+             */
+            //encode/decode int32 to zigzag integer
+            inline uint32_t encode_zigzag_int32(const int32_t value)
+            {
+                return (uint32_t)((value << 1) ^ (value >> 31));
+            }
+            inline int32_t decode_zigzag_int32(const uint32_t val) {
+                return (int32_t)( (val >> 1) ^ -(val & 1) );
+            }
+            //encode/decode int64 to zigzag integer
+            inline uint64_t encode_zigzag_int64(const int64_t value)
+            {
+                return (uint64_t)((value << 1) ^ (value >> 63));
+            }
+            inline int64_t decode_zigzag_int64(const uint64_t val)
+            {
+                return (int64_t)( (val >> 1) ^ -(val & 1) );
+            }
+            
+            template<typename T>
+            int32_t write_compact_var(const T & org_value);//for int8/16/32/64,uint8/16/32/64 and std::string
+            template<typename T>
+            int32_t read_compact_var(T & out_value);//for int8/16/32/64,uint8/16/32/64 and std::string
+
+            template<typename T>
+            int32_t write_compact_vector(const std::vector<T> & org_vector)//std::vector<T>
+            {
+                const int32_t begin_size = size();
+                
+                const uint32_t elements_count = (uint32_t)org_vector.size();
+                write_compact_var(elements_count);
+                for(auto it = org_vector.begin(); it != org_vector.end(); ++it)
+                    write_compact_var(*it);
+                
+                return (size() - begin_size);
+            }
+            template<typename T>
+            int32_t read_compact_vector(std::vector<T> & out_vector)//std::vector<T>
+            {
+                const int32_t begin_size = size();
+                
+                uint32_t elements_count = 0;
+                read_compact_var(elements_count);
+                for(uint32_t i = 0; i < elements_count; ++i)
+                {
+                    T value;
+                    read_compact_var(value);
+                    out_vector.emplace_back(value);
+                }
+                
+                return (begin_size - size());
+            }
+            
+            template<typename T>
+            int32_t write_compact_deque(const std::deque<T> & org_deque)//std::deque<T>
+            {
+                const int32_t begin_size = size();
+                
+                const uint32_t elements_count = (uint32_t)org_deque.size();
+                write_compact_var(elements_count);
+                for(auto it = org_deque.begin(); it != org_deque.end(); ++it)
+                    write_compact_var(*it);
+                
+                return (size() - begin_size);
+            }
+            template<typename T>
+            int32_t read_compact_deque(std::deque<T> & out_deque)//std::deque<T>
+            {
+                const int32_t begin_size = size();
+                
+                uint32_t elements_count = 0;
+                read_compact_var(elements_count);
+                for(uint32_t i = 0; i < elements_count; ++i)
+                {
+                    T value;
+                    read_compact_var(value);
+                    out_deque.emplace_back(value);
+                }
+                
+                return (begin_size - size());
+            }
+            
+            template<typename KEY_T,typename VALUE_T>
+            int32_t write_compact_map(const std::map<KEY_T,VALUE_T> & org_map)//std::map<KEY_T,VALUE_T>
+            {
+                const int32_t begin_size = size();
+                
+                const uint32_t keyvalues_count = (uint32_t)org_map.size();
+                write_compact_var(keyvalues_count);
+                for(auto it = org_map.begin(); it != org_map.end(); ++it)
+                {
+                    write_compact_var(it->first);
+                    write_compact_var(it->second);
+                }
+                
+                return (size() - begin_size);
+            }
+            template<typename KEY_T,typename VALUE_T>
+            int32_t read_compact_map(std::map<KEY_T,VALUE_T> & out_map)//std::map<KEY_T,VALUE_T>
+            {
+                const int32_t begin_size = size();
+                
+                uint32_t keyvalues_count = 0;
+                read_compact_var(keyvalues_count);
+                for(uint32_t i = 0; i < keyvalues_count; ++i)
+                {
+                    KEY_T   key;
+                    VALUE_T value;
+                    read_compact_var(key);
+                    read_compact_var(value);
+                    out_map[key] = value;
+                }
+                
+                return (begin_size - size());
             }
             
             inline xcontext_t*  get_context() const {return ptr_context;}
@@ -1960,6 +2147,20 @@ namespace top
                     block = NULL;
                 }
             };
+            
+        public://compress & decompress functions for stream
+            //note: max size of stream is 256MB for safety while decompressing
+            
+            //wrap function to compress whole stream to string/stream
+            //return how many bytes writed intop to_string
+            static int32_t  compress_to_string(xstream_t & from_stream,std::string & to_string);//might throw exception
+            static int32_t  compress_to_stream(xstream_t & from_stream,xstream_t & to_stream);//might throw exception
+            
+            //wrap function to decompress from string/stream into stream
+            //return how many bytes readed from from_string/stream
+            static int32_t  decompress_from_string(const std::string & from_string,xstream_t & to_stream);//might throw exception
+            static int32_t  decompress_from_stream(xstream_t & from_stream,xstream_t & to_stream);//might throw exception
+            
         protected:
             virtual void free_block(uint8_t* block_ptr,int32_t capacity)
             {

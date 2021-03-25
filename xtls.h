@@ -1,4 +1,4 @@
-// Copyright (c) 2017-2018 Telos Foundation & contributors
+// Copyright (c) 2018-2020 Telos Foundation & contributors
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -9,6 +9,10 @@
 #include <atomic>
 #include <mutex>
 #include "xbase.h"
+
+#ifndef __WIN_PLATFORM__
+    #include <pthread.h>
+#endif
 
 namespace top
 {
@@ -46,6 +50,7 @@ namespace top
             xobject_t*  get_tls_object(const int32_t keyId);
             
             int32_t     get_cur_thread_id(bool generate_newid_if_not_exist = true);    //return new logic thread id if it dose not existing
+            uint32_t    get_cur_sys_thread_id(); //query system ' thread_id of current calling
             
             //Note:total local_id is 1 << 48(big enough),after that id turn around to 0 and increase again
             uint64_t    alloc_local_id(enum_local_xid_type type); //allocate one local_id that cross all process under current machine/device without lock
@@ -68,8 +73,12 @@ namespace top
             std::vector<std::vector<xobject_t*>*>   m_all_thread_entry;
             std::atomic<int32_t>    m_last_thread_id;   //last allocated thread id
             int32_t                 m_used_thread_ids[enum_max_xthread_count];
-            std::mutex              m_lock;         //lock to allocated the keys
+            std::recursive_mutex    m_lock;         //lock to allocated the keys
             xcontext_t*             m_ptr_context;  //point to global context object
+        private:
+            #ifndef __WIN_PLATFORM__
+            pthread_key_t m_thread_slot_key; //just used for geting callback when each posix thread quit
+            #endif
         };
     }; //end of namespace of base
 }; //end of namespace of top

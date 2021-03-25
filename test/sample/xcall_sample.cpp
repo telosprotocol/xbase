@@ -20,6 +20,68 @@
 
 using namespace top;
 
+class xdummobj
+{
+public:
+    xdummobj()
+    {
+        printf("xdummobj::xdummobj \n");
+        _locker.lock();
+    }
+    ~xdummobj()
+    {
+        printf("xdummobj::~xdummobj\n");
+        _locker.unlock();
+    }
+private:
+    std::mutex _locker;
+};
+class xtestobj : public top::base::xiobject_t
+{
+public:
+    xtestobj(const int32_t thread_id)
+    :top::base::xiobject_t(top::base::xcontext_t::instance(),thread_id,base::enum_xobject_app_type_undefine)
+    {
+    }
+public:
+    void* operator new(size_t size)
+    {
+        return malloc(size);
+    }
+    void  operator delete(void *p)
+    {
+        free(p);
+    }
+protected:
+    virtual ~xtestobj()
+    {
+        printf("~xtestobj,this=%llu\n",(int64_t)this);
+    }
+};
+
+base::xauto_ptr<xtestobj> create_test_object(const int thread_id)
+{
+    xdummobj _locker;
+    return new xtestobj(thread_id);
+}
+
+template<typename data_typ,typename param_type>
+class opobj
+{
+public:
+    opobj(param_type param)
+    {
+ 
+    }
+    ~opobj()
+    {
+    
+    }
+public:
+    data_typ data;
+};
+
+std::vector<int> test_vector_out_range1;
 int test_xcall(bool is_stress_test)
 {
     printf("------------------------[test_xcall] start -----------------------------  \n");
@@ -37,6 +99,10 @@ int test_xcall(bool is_stress_test)
     create_thread_dur = top::base::xtime_utl::time_now_ms() - _create_thread_begin_time_ms;
     printf("------------------------[test_xcall] luanch thread(%d) take %d ms -----------------------------  \n",t2->get_thread_id(),(int)create_thread_dur);
     
+    base::xauto_ptr<xtestobj> _test_io_object = create_test_object(t2->get_thread_id());
+    if(_test_io_object == nullptr)
+        return -101;
+ 
     std::string test_raw_data = "welcome random data";
     const uint32_t random_seed = top::base::xtime_utl::get_fast_randomu() % 128;
     for(int i = 0; i < 512; ++i) //avg 512 bytes per packet
@@ -118,6 +184,16 @@ int test_xcall(bool is_stress_test)
         printf("finish execute xmalloc,round(%d) after %d ms with speed(%d /ms) \n",max_test_cound,(int)total_duration,(int)(max_test_cound / total_duration));
     }
 
+    //test lambda call
+    {
+        std::function<void(void*)> test1 = [](void*)->void{
+        };
+        if(_test_io_object != nullptr)
+            _test_io_object->send_call(test1,(void*)0);
+    }
+    
+    opobj<std::vector<int>,int>  testobj(0);
+    
     
     //test xcall
     int latest_command_id = 0;
@@ -126,6 +202,7 @@ int test_xcall(bool is_stress_test)
         const uint64_t begin_timems = top::base::xtime_utl::time_now_ms();
         auto lambda_test = [&latest_command_id,&begin_timems,&max_test_cound](top::base::xcall_t & call,const int32_t thread_id, const uint64_t time_now_ms)->bool
         {
+            
             const int32_t command_id = (int32_t)call.get_param1().get_int64();
             if(command_id == max_test_cound - 1)
             {

@@ -1,4 +1,4 @@
-// Copyright (c) 2017-2018 Telos Foundation & contributors
+// Copyright (c) 2018-2020 Telos Foundation & contributors
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -6,10 +6,30 @@
 
 #include <string>
 #include <vector>
+#include "xobject.h"
+
 namespace top
 {
     namespace base
     {
+        //extern/3rd part register specific xhash_t into xcontext to provide different hash function
+        class xhashplugin_t : public xobject_t
+        {
+        protected:
+            xhashplugin_t(const uint32_t types); //combine every enum_xhash_type
+            virtual ~xhashplugin_t();
+        private:
+            xhashplugin_t();
+            xhashplugin_t(const xhashplugin_t &);
+            xhashplugin_t & operator = (const xhashplugin_t &);
+        public:
+            uint32_t      get_types() const {return m_hash_types;} //return all types suppored by this
+            virtual const std::string hash(const std::string & input,enum_xhash_type type) = 0;
+
+            virtual void* query_interface(const int32_t type) override;
+        private:
+            uint32_t   m_hash_types;
+        };
         
         //xxh32_t and xxh64_t that is the most fast hash algorithm
         //note: xxh32_t and xxh64_t  get 32/64bit' digest instead of 128/256bits(e.g. sha256)

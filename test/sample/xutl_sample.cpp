@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <assert.h>
+#include <fcntl.h>
 
 #include "xlog.h"
 #include "xdata.h"
@@ -15,8 +16,183 @@
 #include "xobfuscation.h"
 #include "xcontext.h"
 #include "xdfcurve.h"
+#include "xvledger.h"
 
 using namespace top::base;
+
+const int xckey_max_srand_seed_count_ = 16;
+static uint64_t g_xckey_srand_seed[xckey_max_srand_seed_count_] = {0}; //64 random seed to improve the random performance
+static uint32_t xrandom32()
+{
+    uint64_t rand_value;
+    const uint32_t stack_address_of_rand_value = (uint32_t)((uint64_t)&rand_value);
+    
+    uint64_t & rand_seed = g_xckey_srand_seed[stack_address_of_rand_value % xckey_max_srand_seed_count_];
+    if(rand_seed == 0) //random reset the seed
+    {
+        srand((unsigned)time(NULL)); //add abosulte time
+        rand_seed += rand();         //add random offset
+        rand_seed += clock();        //add relative time as CPU tick
+        rand_seed += stack_address_of_rand_value; //add random address
+        
+        auto now = std::chrono::system_clock::now();
+        auto now_nano = std::chrono::time_point_cast<std::chrono::nanoseconds>(now);
+        rand_seed += now_nano.time_since_epoch().count();
+    }
+    const uint64_t  init_seed = rand_seed;
+    rand_value = init_seed * 1664525 + 1013904223 + rand_value;
+    rand_seed = (rand_value >> 8);//select more random part
+    return (uint32_t)rand_seed;
+}
+
+//static void xrandom_buffer(uint8_t *buf, size_t len)
+//{
+//    uint32_t r = 0;
+//    for (size_t i = 0; i < len; i++) {
+//        if (i % 4 == 0) {
+//            r = xrandom32();
+//        }
+//        buf[i] = (r >> ((i % 4) * 8)) & 0xFF;
+//    }
+//}
+
+/*
+static uint32_t get_in_slots(const std::set<uint32_t> &subset_slots,
+                             const std::set<uint32_t> &out_slots,
+                             std::set<uint32_t> &in_slots,
+                             uint32_t rand,
+                             uint32_t in_num,
+                             const std::vector<char> &elect_nodes,
+                             uint64_t clock) {
+    xassert(elect_nodes.size() >= in_num);
+    xassert(elect_nodes.size() >= subset_slots.size());
+    if (in_num == 0)
+    {
+        return 0;
+    }
+    else if(in_num > elect_nodes.size())
+    {
+        in_num = elect_nodes.size();
+    }
+    
+    bool out_slot_can_in_again = (in_num < elect_nodes.size() - subset_slots.size());
+    
+    
+    std::vector<uint32_t> difference_subset_and_elect_nodes;
+    for(int index = 0; index < elect_nodes.size(); ++index)
+    {
+        uint32_t slot = elect_nodes.at(index).get_slot_id();
+        auto res = subset_slots.find(slot);
+        if(res == subset_slots.end()) //not found
+        {
+            difference_subset_and_elect_nodes.push_back(slot);
+        }
+    }
+    
+    if(difference_subset_and_elect_nodes.size() >= in_num) //must have enough candidates to join subset_slots
+    {
+        while(in_slots.size() < in_num)
+        {
+            //random pickup one from difference_subset_and_elect_nodes
+            const uint32_t random_pick_index = rand % difference_subset_and_elect_nodes.size();
+            const uint32_t slot = difference_subset_and_elect_nodes[random_pick_index];
+            
+            //add to in_slots
+            in_slots.insert(slot);
+            rand = (uint32_t)(slot * clock); // next rand set slot
+            
+            //remove the selected item
+            difference_subset_and_elect_nodes.erase(difference_subset_and_elect_nodes.begin() + random_pick_index);
+        }
+    }
+    else //if(difference_subset_and_elect_nodes.size() > out_slots.size())
+    {
+        for(std::vector<uint32_t>::iterator it = difference_subset_and_elect_nodes.begin(); it != difference_subset_and_elect_nodes.end(); ++it)
+        {
+            in_slots.insert(*it);
+        }
+        //
+    }
+
+    
+    
+    
+    do {
+        bool find = false;
+        uint32_t index = rand % elect_nodes.size();
+        do {
+            auto slot = elect_nodes.at(index).get_slot_id();
+            auto b = subset_slots.find(slot);
+            if ( b == subset_slots.end() ||
+                (out_can_in && b != subset_slots.end() && out_slots.find(slot) != out_slots.end())) { // ok, can in
+                auto ret = in_outs.insert(slot);
+                if (ret.second) { // insert success
+                    rand = slot * clock; // next rand set slot
+                    find = true;
+                }
+            }
+            if (++index == elect_nodes.size()) { // find next
+                index = 0;
+            }
+        } while (!find);
+        
+    } while (in_outs.size() < in_num);
+    assert(in_outs.size() == in_num);
+    return 0;
+}
+*/
+
+// The following code is not supposed to be used in a production environment.
+// It's included only to make the library testable.
+// The message above tries to prevent any accidental use outside of the test
+// environment.
+//
+// You are supposed to replace the random8() and random32() function with your
+// own secure code. There is also a possibility to replace the random_buffer()
+// function as it is defined as a weak symbol.
+
+static uint32_t seed = 0;
+
+void random_reseed(const uint32_t value) { seed += value; }
+
+uint64_t sys_random() //generate a random number by system ' kernel,it read /dev/urandom for Linux and MacOS
+{
+    uint64_t random_seed;
+    
+#if defined(LINUX) || defined(linux) || defined(__linux) || defined(__linux__) || defined(__APPLE__)
+    int sys_fd = open("/dev/urandom", O_RDONLY); //O_RDONLY is 0
+    if(sys_fd >= 0)
+    {
+        ssize_t result = read(sys_fd,&random_seed,sizeof(random_seed));
+        close(sys_fd); //close first
+        if(result > 0)
+        {
+            return random_seed;
+        }
+    }
+#endif
+    random_seed = (uint64_t)&random_seed;
+    random_seed += rand();
+    random_seed += rand();
+    return random_seed;
+}
+
+uint32_t random32(void) {
+    // Linear congruential generator from Numerical Recipes
+    // https://en.wikipedia.org/wiki/Linear_congruential_generator
+    if(seed < 1048576) //too small
+    {
+        uint64_t init_seed = sys_random();
+        init_seed += rand(); //already init srand() when module start
+        seed = (uint32_t)init_seed;
+    }
+    else //remix
+    {
+        seed += rand();
+    }
+    seed = 1664525 * seed + 1013904223;
+    return seed;
+}
 
 int test_utility(bool is_stress_test)
 {
@@ -25,6 +201,94 @@ int test_utility(bool is_stress_test)
     int max_test_round = 100;
     if(is_stress_test)
         max_test_round = 10000;
+    
+    uint64_t max_64bit = (uint64_t)-1;
+    max_64bit += 1;
+    max_64bit += 1;
+    max_64bit *= 256;
+    
+    printf("c random init:%d \n",random32());
+    printf("c random fresh:%d \n",random32());
+    printf("sys random init:%llu \n",xsys_utl::get_sys_random_number());
+    
+    std::string random_string = xsys_utl::get_sys_random_string(255);
+    printf("sys random string:%s \n",random_string.c_str());
+
+    std::string  test_substr("mWr");
+    const uint64_t value = xstring_utl::hex2uint64(test_substr);
+    //test clock/timing function
+    if(value != 0)
+    {
+
+        const int64_t time_from_gettimeofday = top::base::xtime_utl::gettimeofday() * 1000;
+        const int64_t time_from_timenow_ms   = top::base::xtime_utl::time_now_ms();
+    
+        printf("sys timing:time_from_gettimeofday=%lld vs time_from_timenow_ms=%lld \n",time_from_gettimeofday,time_from_timenow_ms);
+    }
+    
+    //test system account
+    {
+        const std::string account_addr = top::base::xvaccount_t::make_account_address(top::base::enum_vaccount_addr_type_native_contract, top::base::enum_test_chain_id, top::base::enum_chain_zone_beacon_index, 127, 7, std::string("1234567890abcdef"));
+        const xvid_t account_id = top::base::xvaccount_t::get_xid_from_account(account_addr);
+        xassert(account_id != 0);
+        xassert(top::base::xvaccount_t::get_addrtype_from_account(account_addr) == top::base::enum_vaccount_addr_type_native_contract);
+        xassert(top::base::xvaccount_t::get_chainid_from_ledgerid(top::base::xvaccount_t::get_ledgerid_from_account(account_addr)) == top::base::enum_test_chain_id);
+        xassert(top::base::xvaccount_t::get_zoneindex_from_ledgerid(top::base::xvaccount_t::get_ledgerid_from_account(account_addr)) == top::base::enum_chain_zone_beacon_index);
+        //xassert(get_vledger_subaddr(account_id) == 1023);
+    }
+    //test regular account
+    { 
+        const std::string account_addr = top::base::xvaccount_t::make_account_address(top::base::enum_vaccount_addr_type_secp256k1_user_account,top::base::xvaccount_t::make_ledger_id(top::base::enum_main_chain_id, top::base::enum_chain_zone_consensus_index),std::string("1234567890abcdef"));
+        const xvid_t account_id = top::base::xvaccount_t::get_xid_from_account(account_addr);
+        xassert(account_id != 0);
+        xassert(top::base::xvaccount_t::get_addrtype_from_account(account_addr) == top::base::enum_vaccount_addr_type_secp256k1_user_account);
+        xassert(top::base::xvaccount_t::get_chainid_from_ledgerid(top::base::xvaccount_t::get_ledgerid_from_account(account_addr)) == top::base::enum_main_chain_id);
+        xassert(top::base::xvaccount_t::get_zoneindex_from_ledgerid(top::base::xvaccount_t::get_ledgerid_from_account(account_addr)) == top::base::enum_chain_zone_consensus_index);
+    }
+    
+    //test nullptr and NULL;
+    int* int_c_ptr = NULL;
+    if(nullptr == int_c_ptr)
+    {
+        int_c_ptr = 0;
+    }
+    if(nullptr == int_c_ptr)
+    {
+        int_c_ptr = NULL;
+    }
+    if(int_c_ptr == nullptr)
+    {
+        int_c_ptr = new int;
+    }
+    delete int_c_ptr;
+    
+    
+    int* int_cpp_ptr = nullptr;
+    if(0 == int_cpp_ptr)
+    {
+        int_cpp_ptr = nullptr;
+    }
+    if(NULL == int_cpp_ptr)
+    {
+        int_cpp_ptr = nullptr;
+    }
+    if(int_cpp_ptr == 0)
+    {
+        int_cpp_ptr = nullptr;
+    }
+    if(int_cpp_ptr == NULL)
+    {
+        int_cpp_ptr = new int;
+    }
+    delete int_cpp_ptr;
+    
+    //uint8_t _buffer[256];
+    //xrandom_buffer(_buffer,sizeof(_buffer));
+    for(int i = 0; i < 256; ++i)
+    {
+        uint32_t random_value = xrandom32();
+        printf("xrandom32()-> %u \n",random_value);
+    }
     
     std::string test_raw_data = "welcome aes data";
     const uint32_t random_seed = xtime_utl::get_fast_randomu() % 128;
@@ -73,6 +337,15 @@ int test_utility(bool is_stress_test)
             printf("----[xpacket_t] successsful finish %d round with duration(%d ms),speed=%d----  \n",test_xpacket_round,duration,test_xpacket_round/duration);
         }
     }
+    
+    //test xmalloc & xfree
+    {
+        int target_size = 2048;
+        void * mem_ptr = top::base::xmalloc(top::base::xcontext_t::instance(), target_size);
+        memset(mem_ptr,0,target_size);
+        top::base::xfree(top::base::xcontext_t::instance(), mem_ptr);
+    }
+    
     //test serialize
     {
         xautostream_t<1024> test_stream(top::base::xcontext_t::instance());

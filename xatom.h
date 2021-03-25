@@ -1,4 +1,4 @@
-// Copyright (c) 2017-2018 Telos Foundation & contributors
+// Copyright (c) 2018-2020 Telos Foundation & contributors
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -282,7 +282,7 @@ namespace top
             template<typename T>
             static inline T xload(T & org_value)
             {
-                return __sync_val_compare_and_swap(&org_value, 0, 0);
+                return __sync_val_compare_and_swap(&org_value, (T)0, (T)0);
             }
             
             //store newVal to org_value
