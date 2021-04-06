@@ -36,9 +36,6 @@ namespace top
             bool    set_log_file_hook(_func_create_log_file_cb _call_back);
             bool    set_log_trace_hook(_func_hook_trace_cb _call_back);
             int     set_trace_lines_per_file(uint32_t max_tracelines_per_file);//decide to rotate to new log file after how many lines
-            
-            int     dup_trace_to_terminal(bool turn_on); //copy log to terminal as well if turn_on for debug build. as default it is off
-
         public:
             void    dbg(const char* msg, ...);
             void    info(const char* msg, ...);
@@ -64,14 +61,13 @@ namespace top
             _func_create_log_file_cb  m_create_log_file_callback;
         private:
             int          m_atom_lock;
-            int          m_dup_to_terminal;  //copy log to terminal as well if turn_on for debug build
             uint32_t     m_log_lines;  //how many lines are traced out per file
             uint32_t     m_max_log_lines_per_file;
             uint32_t     m_log_file_index;
             int32_t      m_log_file_handle;
             std::string  m_log_file_name;    //the name and path of file
             std::string  m_log_dir;          //dir of log files
-            std::string  m_module_name;      //module name as file name
+            std::string  m_module_name;     //module name as file name
         };
     }
 } //end of namespace top

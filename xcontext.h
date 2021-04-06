@@ -261,13 +261,6 @@ namespace top
             std::string m_default_net_interface_name;
         };
         
-    #define IMPL_REGISTER_OBJECT(T) void T::register_object(xcontext_t & context) { \
-        auto lambda_new_func = [](const int type)->xobject_t*{ \
-            return new T(); \
-        }; \
-        xcontext_t::register_xobject2(context,(enum_xobject_type)T::enum_obj_type,lambda_new_func); \
-        }\
-        
         template<typename T>
         class auto_new_registor
         {

@@ -413,9 +413,7 @@ namespace top
         };
        
         class xvexecontext_t;
-        //Entity is a lambda execution(aka:"执行体") that have execution instructions and related data, like PE(Potable Execution) it may also link to the extend resource at Data-Section.
-        //xventity_t of output present "bin-log" of "state" as result
-        //xventity_t of input  present "bin-log" of "event and call" as source
+        //Entity is a lambda execution that have execution instructions and related data, like PE(Potable Execution) it may also link to the extend resource at Data-Section.
         class xventity_t : public xdataunit_t
         {
             friend class xvblock_t;
@@ -505,11 +503,6 @@ namespace top
             std::string    m_raw_data;
         };
     
-        //rule#1: each block of the account always use xventity_t of entity_index(0) for own state
-        //rule#2: each block of account get final state by combining the xvbstate of prev-block and current entity of output
-        //rule#3: full-block'output'xventity(0) present full state
-        //rule#4: table use xventity_t(index than #1) to present the included units
-        //rule#5: each unit in table has one(only one) linked xventity
         //xvexecontext manage the entities and resources
         class xvexecontext_t : public xdataunit_t
         {
@@ -665,8 +658,6 @@ namespace top
             
             enum_xvblock_flags_mask             = 0xFF00, //mask to get all block flags
         };
-    
-        class xvbstate_t;
         //note: xvblock must have associated xvheader_t and xvqcert_t objects
         class xvblock_t : public xdataobj_t
         {
@@ -771,8 +762,6 @@ namespace top
             bool                        reset_prev_block(xvblock_t * _new_prev_block);//return false if hash or height not match
             bool                        reset_next_block(xvblock_t * _new_next_block);//return false if hash or height not match
             
-            bool                        reset_block_state(xvbstate_t * _new_state_ptr);//return false if hash or height not match
-            
             void                        set_next_next_cert(xvqcert_t * next_next_vqcert_ptr);//reset ptr of next next cert
 
         private:
@@ -791,7 +780,6 @@ namespace top
             
             xvinput_t*                  m_vinput_ptr;       //note: it must be valid at all time,enven a empty input
             xvoutput_t*                 m_voutput_ptr;      //note: it must be valid at all time,enven a empty output
-            xvbstate_t*                 m_vbstate_ptr;      //note: it might be empty. point to current state of this block
         private:
             xvblock_t*                  m_prev_block;       //note: m_prev_block(aka parent)  'height must = m_block'height - 1
             xvblock_t*                  m_next_block;       //note: m_next_block(aka child)   'height must = m_block'height + 1

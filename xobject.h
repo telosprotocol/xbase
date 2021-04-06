@@ -76,16 +76,14 @@ namespace top
             enum_xobject_type_databox   = -5,
             enum_xobject_type_timer     = -6,
             enum_xobject_type_thread    = -7,
-            enum_xobject_type_woker     = -8,  //worker thread object
-            enum_xobject_type_vevent    = -9,  //general event
+            enum_xobject_type_woker     = -8, //worker thread object
+            enum_xobject_type_vevent    = -9, //general event
             enum_xobject_type_ionode    = -10, //general io-node
-            enum_xobject_type_dataunit  = -11, //general data unit
-            enum_xobject_type_datapdu   = -12, //general data pdu/msg
-            enum_xobject_type_dataobj   = -13, //general data object
-            enum_xobject_type_endpoint  = -14, //general endpoint
-            enum_xobject_type_valueobj  = -15, //general property/value
-            enum_xobject_type_exe_unit  = -16, //general execution object that support 'execute(xvmethod_t & op)' or script
-
+            enum_xobject_type_dataunit  = -11,//general data unit
+            enum_xobject_type_datapdu   = -12,//general data pdu/msg
+            enum_xobject_type_dataobj   = -13,//general data object
+            enum_xobject_type_endpoint  = -14,//general endpoint
+            
             enum_xobject_type_socket    = -23, //xsocket object
             enum_xobject_type_connection= -24, //xconnection object
             enum_xobject_type_node      = -25, //xnode_t object
@@ -108,47 +106,6 @@ namespace top
             enum_xobject_type_binventity= -49, //general binary entity of block body
             enum_xobject_type_vinput    = -50, //general virtual input of block body
             enum_xobject_type_voutput   = -51, //general virtual outpu of block body
-            enum_xobject_type_vbstate   = -52, //general virtual state of account
-            enum_xobject_type_statestore= -53, //state store
-            
-            //blockchain 'property related
-            enum_xobject_type_vproperty     = -54, //general virtual property of account
-            enum_xobject_type_vprop_token   = -55, //property of token
-            enum_xobject_type_vprop_nonce   = -56, //property of nonce for account
-            enum_xobject_type_vprop_code    = -57, //code property
-            enum_xobject_type_vprop_int8    = -58, //int8_t property
-            enum_xobject_type_vprop_int16   = -59, //int16_t property
-            enum_xobject_type_vprop_int32   = -60, //int32_t property
-            enum_xobject_type_vprop_int64   = -61, //int64_t property
-            enum_xobject_type_vprop_uint64  = -62, //unt64_t property
-            enum_xobject_type_vprop_string  = -63, //sting property
-            enum_xobject_type_vprop_hash    = -64, //hash string
-            enum_xobject_type_vprop_mkeys   = -65, //manage multiple keys
-            enum_xobject_type_vprop_mtokens = -66, //manage multiple tokens
-
-            enum_xobject_type_vprop_int8_vector     = -70, //std::vector<std::string,int8_t>
-            enum_xobject_type_vprop_int16_vector    = -71, //std::vector<std::string,int16_t>
-            enum_xobject_type_vprop_int32_vector    = -72, //std::vector<std::string,int32_t>
-            enum_xobject_type_vprop_int64_vector    = -73, //std::vector<std::string,int64_t>
-            enum_xobject_type_vprop_uint64_vector   = -74, //std::vector<std::string,uint64_t>
-            enum_xobject_type_vprop_string_vector   = -75, //std::vector<std::string,std::string>
-            
-            enum_xobject_type_vprop_int8_deque      = -76, //std::vector<std::string,int8_t>
-            enum_xobject_type_vprop_int16_deque     = -77, //std::vector<std::string,int16_t>
-            enum_xobject_type_vprop_int32_deque     = -78, //std::vector<std::string,int32_t>
-            enum_xobject_type_vprop_int64_deque     = -79, //std::vector<std::string,int64_t>
-            enum_xobject_type_vprop_uint64_deque    = -80, //std::vector<std::string,uint64_t>
-            enum_xobject_type_vprop_string_deque    = -81, //std::vector<std::string,std::string>
-            
-            enum_xobject_type_vprop_int8_map        = -82, //std::map<std::string,int8_t>
-            enum_xobject_type_vprop_int16_map       = -83, //std::map<std::string,int8_t>
-            enum_xobject_type_vprop_int32_map       = -84, //std::map<std::string,int8_t>
-            enum_xobject_type_vprop_int64_map       = -85, //std::map<std::string,int8_t>
-            enum_xobject_type_vprop_uint64_map      = -86, //std::map<std::string,int8_t>
-            enum_xobject_type_vprop_string_map      = -87, //std::map<std::string,int8_t>
-            enum_xobject_type_vprop_hashmap         = -88, //std::map<std::string,std::map<std::string,std::string>>
-            
-    
             
             enum_xobject_type_min       = -255,
         };

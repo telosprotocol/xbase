@@ -12,7 +12,6 @@
 #include <set>
 #include <string>
 #include <vector>
-#include <deque>
 #include <algorithm>
 #include "xbase.h"
 #include "xatom.h"
@@ -1167,7 +1166,7 @@ namespace top
             void       reset(int init_offset); //the remaining data will lost but the memory still valid
         public:
             int32_t    copy_from(xbuffer_t & obj);
-        public://serialize function for basic tyep of data
+        public:
             int32_t operator << (const bool value)
             {
                 reserve_size(sizeof(int8_t));
@@ -1877,7 +1876,6 @@ namespace top
                 }
             }
             
-        public://specific function for short and tiny string
             //to save space and increase safty, here provide function for short string(max as 64K)
             int32_t read_short_string(std::string & value) //read out data
             {
@@ -1904,7 +1902,6 @@ namespace top
                 pop_front(nStrSize);
                 return  (nStrSize + sizeof(uint16_t));
             }
-            
             //to save space and increase safty, here provide function for short string(max as 64K)
             int32_t write_short_string(const std::string & value) //write in data
             {
@@ -1922,7 +1919,6 @@ namespace top
                     return sizeof(uint16_t);
                 }
             }
-            
             //to save space and increase safty, here provide function for tiny string(max as 255 bytes)
             int32_t write_tiny_string(const std::string & value) //write in data
             {
@@ -1965,127 +1961,6 @@ namespace top
                 value.assign((char*)data(),nStrSize);
                 pop_front(nStrSize);
                 return  (nStrSize + sizeof(uint8_t));
-            }
-            
-        public://-------------variable integer,string vector,queue and map at compatct mode---------------//
-            /**
-             * ZigZag encoding that maps signed integers with a small absolute value
-             * to unsigned integers with a small (positive) values. Without this,
-             * encoding negative values using Varint would use up 9 or 10 bytes.
-             */
-            //encode/decode int32 to zigzag integer
-            inline uint32_t encode_zigzag_int32(const int32_t value)
-            {
-                return (uint32_t)((value << 1) ^ (value >> 31));
-            }
-            inline int32_t decode_zigzag_int32(const uint32_t val) {
-                return (int32_t)( (val >> 1) ^ -(val & 1) );
-            }
-            //encode/decode int64 to zigzag integer
-            inline uint64_t encode_zigzag_int64(const int64_t value)
-            {
-                return (uint64_t)((value << 1) ^ (value >> 63));
-            }
-            inline int64_t decode_zigzag_int64(const uint64_t val)
-            {
-                return (int64_t)( (val >> 1) ^ -(val & 1) );
-            }
-            
-            template<typename T>
-            int32_t write_compact_var(const T & org_value);//for int8/16/32/64,uint8/16/32/64 and std::string
-            template<typename T>
-            int32_t read_compact_var(T & out_value);//for int8/16/32/64,uint8/16/32/64 and std::string
-
-            template<typename T>
-            int32_t write_compact_vector(const std::vector<T> & org_vector)//std::vector<T>
-            {
-                const int32_t begin_size = size();
-                
-                const uint32_t elements_count = (uint32_t)org_vector.size();
-                write_compact_var(elements_count);
-                for(auto it = org_vector.begin(); it != org_vector.end(); ++it)
-                    write_compact_var(*it);
-                
-                return (size() - begin_size);
-            }
-            template<typename T>
-            int32_t read_compact_vector(std::vector<T> & out_vector)//std::vector<T>
-            {
-                const int32_t begin_size = size();
-                
-                uint32_t elements_count = 0;
-                read_compact_var(elements_count);
-                for(uint32_t i = 0; i < elements_count; ++i)
-                {
-                    T value;
-                    read_compact_var(value);
-                    out_vector.emplace_back(value);
-                }
-                
-                return (begin_size - size());
-            }
-            
-            template<typename T>
-            int32_t write_compact_deque(const std::deque<T> & org_deque)//std::deque<T>
-            {
-                const int32_t begin_size = size();
-                
-                const uint32_t elements_count = (uint32_t)org_deque.size();
-                write_compact_var(elements_count);
-                for(auto it = org_deque.begin(); it != org_deque.end(); ++it)
-                    write_compact_var(*it);
-                
-                return (size() - begin_size);
-            }
-            template<typename T>
-            int32_t read_compact_deque(std::deque<T> & out_deque)//std::deque<T>
-            {
-                const int32_t begin_size = size();
-                
-                uint32_t elements_count = 0;
-                read_compact_var(elements_count);
-                for(uint32_t i = 0; i < elements_count; ++i)
-                {
-                    T value;
-                    read_compact_var(value);
-                    out_deque.emplace_back(value);
-                }
-                
-                return (begin_size - size());
-            }
-            
-            template<typename KEY_T,typename VALUE_T>
-            int32_t write_compact_map(const std::map<KEY_T,VALUE_T> & org_map)//std::map<KEY_T,VALUE_T>
-            {
-                const int32_t begin_size = size();
-                
-                const uint32_t keyvalues_count = (uint32_t)org_map.size();
-                write_compact_var(keyvalues_count);
-                for(auto it = org_map.begin(); it != org_map.end(); ++it)
-                {
-                    write_compact_var(it->first);
-                    write_compact_var(it->second);
-                }
-                
-                return (size() - begin_size);
-            }
-            template<typename KEY_T,typename VALUE_T>
-            int32_t read_compact_map(std::map<KEY_T,VALUE_T> & out_map)//std::map<KEY_T,VALUE_T>
-            {
-                const int32_t begin_size = size();
-                
-                uint32_t keyvalues_count = 0;
-                read_compact_var(keyvalues_count);
-                for(uint32_t i = 0; i < keyvalues_count; ++i)
-                {
-                    KEY_T   key;
-                    VALUE_T value;
-                    read_compact_var(key);
-                    read_compact_var(value);
-                    out_map[key] = value;
-                }
-                
-                return (begin_size - size());
             }
             
             inline xcontext_t*  get_context() const {return ptr_context;}
@@ -2147,20 +2022,6 @@ namespace top
                     block = NULL;
                 }
             };
-            
-        public://compress & decompress functions for stream
-            //note: max size of stream is 256MB for safety while decompressing
-            
-            //wrap function to compress whole stream to string/stream
-            //return how many bytes writed intop to_string
-            static int32_t  compress_to_string(xstream_t & from_stream,std::string & to_string);//might throw exception
-            static int32_t  compress_to_stream(xstream_t & from_stream,xstream_t & to_stream);//might throw exception
-            
-            //wrap function to decompress from string/stream into stream
-            //return how many bytes readed from from_string/stream
-            static int32_t  decompress_from_string(const std::string & from_string,xstream_t & to_stream);//might throw exception
-            static int32_t  decompress_from_stream(xstream_t & from_stream,xstream_t & to_stream);//might throw exception
-            
         protected:
             virtual void free_block(uint8_t* block_ptr,int32_t capacity)
             {

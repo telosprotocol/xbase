@@ -472,7 +472,7 @@ namespace top
             xvblockstore_t(enum_xdata_type type);
             virtual ~xvblockstore_t();
         private:
-            static void  register_object(xcontext_t & _context); //internal use only
+            static void  _register(xcontext_t & _context); //internal use only
             xvblockstore_t(const xvblockstore_t &);
             xvblockstore_t & operator = (const xvblockstore_t &);
         public:
@@ -493,9 +493,7 @@ namespace top
             virtual xauto_ptr<xvblock_t>  get_latest_full_block(const std::string & account)  = 0;//block has full state,genesis is a full block
             virtual xauto_ptr<xvblock_t>  get_latest_current_block(const std::string & account,bool ask_full_load = false)  = 0;//block has connected to cert/lock/commit block
             //ask_full_load decide load header only or include input/output(that can be loaded seperately by load_block_input/output)
-            virtual xauto_ptr<xvblock_t>  get_genesis_connected_block(const std::string & account) {return nullptr;}//block connected to genesis
-            virtual xauto_ptr<xvblock_t>  get_genesis_current_block(const std::string & account) {return nullptr;}//block connected to genesis            
-
+            
         public://note:load_block/store/delete may work with both persist db and cache layer
             virtual xauto_ptr<xvblock_t>  load_block_object(const std::string & account,const uint64_t height,bool ask_full_load = true) = 0;
             virtual bool                  load_block_input(xvblock_t* block) = 0;  //load and assign input data into  xvblock_t

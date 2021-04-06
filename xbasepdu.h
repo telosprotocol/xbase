@@ -237,7 +237,7 @@ namespace top
             std::string _client_payload;                   //carry on any addtional information
             
             std::string _xip_request_payload;               //for performance, linklayer may carry the xip layer' request pdu directly
-            //将STATE COOKIE 中的TCB 部分和本端密钥根据RFC2401 的MAC 算法进行计算，得出的MAC 和STATE COOKIE 中携带的MAC 进行比较。如果不同则丢弃这个消息；如 果相同，则取出TCB 部分的时间戳，和当前时间比较，看时间是否已经超过 了COOKIE 的生命期。如果是，同样丢弃。否则根据TCB 中的信息建立一个 和端A 的偶联。端点B 将状态迁入ESTABLISHED，并发出COOKIE ACK 数 据块
+            //The TCB part in the STATE COOKIE and the private key are calculated according to the MAC algorithm of RFC2401, and the obtained MAC is compared with the MAC carried in the STATE COOKIE. If the comparision result is different, then discard the message; If the comparision result is same, then the time stamp of TCB part is taken out and compared with the current time to see whether the time has exceeded the lifetime of COOKIE. If so, discard it as well. Otherwise, A coupling to endppoint A is established based on the information in the TCB. Endpoint B moves the state into ESTABLISHED and send a COOKIE ACK data block.
         };
         
         class xlinkhandshake_synack_pdu : public xlink_handshake_pdu

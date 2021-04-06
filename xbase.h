@@ -292,8 +292,7 @@ typedef enum tag_enum_xerror_code
     enum_xerror_code_disconnect          = -6,   //connection/socket disconnected or reseted by peer
     enum_xerror_code_blocked             = -7,   //blocked by some reason(e.g.too frequently)
     enum_xerror_code_expired             = -8,   //session is expired already
-    enum_xerror_code_exist               = -9,   //found duplicated or existing one 
-    
+
     enum_xerror_code_bad_param           = -10,   //funtion parameter is invalid
     enum_xerror_code_bad_packet          = -11,   //invalid packet
     enum_xerror_code_bad_file            = -12,   //invalid file content
@@ -324,23 +323,11 @@ typedef enum tag_enum_xerror_code
     enum_xerror_code_bad_initialize      = -37,   //usally class object not init & consruct properly
     enum_xerror_code_bad_transaction     = -38,   //bad transaction
     enum_xerror_code_bad_block           = -39,   //bad block
-    enum_xerror_code_bad_contract        = -40,   //bad contract
-    enum_xerror_code_bad_code            = -41,   //code of contract
-    enum_xerror_code_bad_instruction     = -42,   //bad  instruction
-    enum_xerror_code_bad_method          = -43,   //bad  instruction
-    enum_xerror_code_bad_signature       = -44,   //signature of sign
-    enum_xerror_code_bad_block_input     = -45,   //invalid input of block
-    enum_xerror_code_bad_block_output    = -46,   //invalid output of block
-    enum_xerror_code_bad_block_cert      = -47,   //invalid certification of block
-    enum_xerror_code_bad_vproperty       = -48,   //bad property of object
-    enum_xerror_code_bad_vfunction       = -49,   //bad function of object
-
+ 
     enum_xerror_code_no_memory           = -50,   //memory running out
     enum_xerror_code_no_address          = -51,   //address running out
     enum_xerror_code_no_handle           = -52,   //socket or file handle running out
     enum_xerror_code_no_resource         = -53,   //other resource running out
-    enum_xerror_code_no_key              = -54,   //not found target key
-    enum_xerror_code_no_value            = -55,   //not found target value
     
     enum_xerror_code_not_implement       = -60,  //not implementation
     enum_xerror_code_not_open            = -61,  //object is not opened,similar as enum_error_code_not_avaiable
@@ -352,9 +339,6 @@ typedef enum tag_enum_xerror_code
     enum_xerror_code_not_respond         = -67,  //peer dont response ,similar as timeout
     enum_xerror_code_not_sync            = -68,  //not synchronized completely
     enum_xerror_code_not_authorize       = -69,  //need fire authentication first to get priviledge
-    
-    enum_xerror_code_invalid_param_count     = -70,  //too many or too less params passed
-    enum_xerror_code_invalid_param_type      = -71,  //type of data for parameter is wrong
     
     enum_xerror_code_over_credit_day_limit   = -80,  //purchased credit or free-credit from  gift/ad has  limit for consume per day
     enum_xerror_code_no_balance              = -81,  //dont have enough balance/volume/credit
@@ -371,11 +355,6 @@ typedef enum tag_enum_xerror_code
     enum_xerror_code_fail_detach         = -101,
     enum_xerror_code_fail_alloc_addr     = -102,
     enum_xerror_code_fail_alloc_mem      = -103,
-    enum_xerror_code_fail_insert         = -104, //fail to insert
-    enum_xerror_code_fail_overwrite      = -105, //fail to write & replace old one
-    enum_xerror_code_fail_compress       = -106, //fail to compressed data
-    enum_xerror_code_fail_decompress     = -107, //fail to decompress data
-    enum_xerror_code_fail_verifyhash     = -108, //hash is not matched
     
     enum_xerror_code_recurse_loop        = -110,   //recurse loop endless
     enum_xerror_code_packet_droped       = -111,   //packet/call is dropped when it allow to do it
@@ -1151,8 +1130,7 @@ extern "C"
     int   xset_log_file_hook(_func_create_log_file_cb _create_file_cb);//it is nil as default
     int   xset_log_trace_hook(_func_hook_trace_cb  _hook_trace_cb);
     int   xset_trace_lines_per_file(const int max_tracelines_per_file);//decide to rotate to new log file after how many lines
-    int   xdup_trace_to_terminal(bool turn_on); //copy log to terminal as well if turn_on for debug build. as default it is off
-
+    
     void  xwrite_log(const char * module,enum_xlog_level level,const char* msg, ...);
     void  xwrite_log2(const char * module,const char * file, const char* function, const int line,enum_xlog_level level,const char* msg, ...);
     void  xflush_log();  //just call when really need because it may has performance lost

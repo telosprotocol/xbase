@@ -26,8 +26,7 @@ namespace top
             enum_xdata_flag_encrypted  = 0x02,  //raw data is encyprted by subclass,note: strong recommend to use xaes_t
             enum_xdata_flag_fragment   = 0x04,  //raw data is fragment,which means this object just present one fragment
             enum_xdata_flag_signature  = 0x08,  //raw data is signed by authentication key
-            enum_xdata_flag_shared     = 0x10,  //raw data is shared,usally it requiret to readonly and write-on-copy
-            enum_xdata_flag_synced     = 0x20,  //raw data is from sync channel
+            
             enum_xdata_flag_max        = 0x80,  //can not over this
             
             enum_xdata_flags_mask      = 0xFF,  //Mask to keep them
@@ -107,7 +106,6 @@ namespace top
                 uint8_t   body_raw[];       //raw data
             }_ALIGNPACKED_1;
         public:
-            static xdataunit_t * read_from(const std::string & binary_data);//binary data is placed on string
             static xdataunit_t * read_from(xstream_t & stream);
             static bool          read_head(xstream_t & stream,int16_t & obj_type,uint16_t & obj_flags,uint32_t & obj_length,int & pdu_version);//parse stream directly and copy header information,return false if fail to parse stream(invalid data)
         protected:

@@ -16,7 +16,6 @@
 #include "xpacket.h"
 #include "xsocket.h"
 #include "xutl.h"
-#include "xvstate.h"
 
 
 class xstringunit_t : public top::base::xdataunit_t
@@ -243,8 +242,6 @@ private:
     std::string  m_extra_data;
 };
 
-
-
 int test_xdata(bool is_stress_test)
 {
     std::string test_raw_data = "welcome aes data: ";
@@ -417,6 +414,7 @@ int test_xdata(bool is_stress_test)
     
     _test_stream >> uin16_value;
     printf("------------------------_test_stream.size() =%d ----------------------------- \n",(int)_test_stream.size());
+    
     
     //test vector
     {

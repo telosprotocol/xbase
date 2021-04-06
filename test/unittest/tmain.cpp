@@ -20,7 +20,6 @@ int test_xudp(bool is_stress_test);
 int test_timer(bool is_stress_test);
 int test_utility(bool is_stress_test);
 int test_xpbft(bool is_stress_test);
-int test_xstate(bool is_stress_test);
 
 extern "C" int my_create_log_file_cb(const char * log_file_name)
 {
@@ -160,7 +159,6 @@ int main(int argc,char* argv[])
     xinit_log("/tmp/",true,true);
 #endif
     xset_log_level(enum_xlog_level_debug);
-    xdup_trace_to_terminal(true);
     
     xset_trace_lines_per_file(1000);
     xset_log_file_hook(my_create_log_file_cb);//as default
@@ -180,17 +178,10 @@ int main(int argc,char* argv[])
     //top::base::xcontext_t::enum_debug_mode_reference_check
     
     xtestdbgplugin_t * dbg_plugin = new xtestdbgplugin_t();
-    //top::base::xcontext_t::instance().set_debug_modes(top::base::xcontext_t::enum_debug_mode_memory_check);
+    top::base::xcontext_t::instance().set_debug_modes(top::base::xcontext_t::enum_debug_mode_memory_check);
     top::base::xcontext_t::instance().set_debug_plugin(dbg_plugin);
     
 #ifdef __TEST_ALL_CASE__
-    test_result = test_xstate(is_stress_test);
-    if(test_result != 0)
-    {
-        printf("test_xstate found error,exit \n");
-        return 0;
-    }
-    
     test_result = test_utility(is_stress_test);
     if(test_result != 0)
     {
