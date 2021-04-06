@@ -22,12 +22,13 @@ namespace top
         //total 8 flags with lowest 8 bit of uint16
         enum enum_xdata_flag
         {
-            enum_xdata_flag_compressed = 0x01,  //raw data compressed by lz4,note: only valid compress method is xcompress_t
+            enum_xdata_flag_unsued     = 0x01,  //remove this flag to see whether anyone use it
             enum_xdata_flag_encrypted  = 0x02,  //raw data is encyprted by subclass,note: strong recommend to use xaes_t
             enum_xdata_flag_fragment   = 0x04,  //raw data is fragment,which means this object just present one fragment
             enum_xdata_flag_signature  = 0x08,  //raw data is signed by authentication key
             enum_xdata_flag_shared     = 0x10,  //raw data is shared,usally it requiret to readonly and write-on-copy
             enum_xdata_flag_synced     = 0x20,  //raw data is from sync channel
+            enum_xdata_flag_acompress  = 0x40, //raw data compressed by lz4,note: only valid compress method is xcompress_t
             enum_xdata_flag_max        = 0x80,  //can not over this
             
             enum_xdata_flags_mask      = 0xFF,  //Mask to keep them
@@ -123,7 +124,7 @@ namespace top
             
             inline   int16_t    get_obj_type()      const {return m_obj_type;}
             inline   uint32_t   get_obj_length()    const {return m_obj_length;}
-            inline   int        get_pdu_version()   const {return m_pdu_version;}
+            //inline   int        get_pdu_version()   const {return m_pdu_version;}
             //m_unknown_content keep the unreconized part when old client read packet/block from client of newer version
             std::string         get_unknown_content() const {return m_unknown_content;}
             
@@ -166,6 +167,7 @@ namespace top
             int16_t             m_obj_type;         //data object type
             uint16_t            m_obj_flags;        //data object flags
             uint32_t            m_obj_length;       //the length(max 24bit) of the whole data,note:high8bit is reserved as version of pdu
+        private:
             uint8_t             m_pdu_version;      //version code of pdu
         protected:
             std::string         m_unknown_content;  //old client read a unit of newer version, keep unknown part here  

@@ -31,6 +31,19 @@ namespace top
              */
             static int lz4_decompress(const char* source, char* dest, const int compressedSize, const int maxDecompressedSize);
             
+            /*
+                 *  Decompress an LZ4 compressed block, of size 'srcSize' at position 'src',
+                 *  into destination buffer 'dst' of size 'dstCapacity'.
+                 *  Up to 'targetOutputSize' bytes will be decoded.
+                 *  The function stops decoding on reaching this objective.
+                 *  This can be useful to boost performance
+                 *  whenever only the beginning of a block is required.
+                 *
+                 * @return : the number of bytes decoded in `dst` (necessarily <= targetOutputSize)
+                 *           If source stream is detected malformed, function returns a negative result.
+             */
+            static int lz4_decompress_partial(const char* source, char* dest, const int compressedSize, const int targetOutputSize);
+            
             //note: the compressed size might bigger than inputSize
             static int lz4_get_compressed_bound_size(int inputSize); //calcuate the max size after compresessed  inputSize
         };

@@ -2152,14 +2152,22 @@ namespace top
             //note: max size of stream is 256MB for safety while decompressing
             
             //wrap function to compress whole stream to string/stream
-            //return how many bytes writed intop to_string
-            static int32_t  compress_to_string(xstream_t & from_stream,std::string & to_string);//might throw exception
-            static int32_t  compress_to_stream(xstream_t & from_stream,xstream_t & to_stream);//might throw exception
+            //return bytes of compressed data,return negagive if have error and might also throw exception
+            //note: target data(to compress) = [from_stream.data(),rawdata_size],and from_stream may readout raw_data_size bytes
+            static int32_t  compress_to_string(xstream_t & from_stream,const uint32_t raw_data_size,std::string & to_string);
+            static int32_t  compress_to_string(const std::string & from_string,std::string & to_string);//might throw exception
+            //note:might throw exception,and from_stream may modified and readout bytes as raw_data_size
+            static int32_t  compress_to_stream(xstream_t & from_stream,const uint32_t raw_data_size,xstream_t & to_stream);
+            static int32_t  compress_to_stream(const std::string & from_string,xstream_t & to_stream);//might throw exception
             
             //wrap function to decompress from string/stream into stream
-            //return how many bytes readed from from_string/stream
+            //return bytes of decompressed data,return negagive if have error and might also throw exception
             static int32_t  decompress_from_string(const std::string & from_string,xstream_t & to_stream);//might throw exception
-            static int32_t  decompress_from_stream(xstream_t & from_stream,xstream_t & to_stream);//might throw exception
+            static int32_t  decompress_from_string(const std::string & from_string,std::string & to_string);//might throw exception
+            //note:the compressed data = [from_stream.data(),compressed_data_size],the decompressed data is appended to to_stream.back()
+            //might throw exception,and from_stream may modified and readout bytes as compressed_data_size
+            static int32_t  decompress_from_stream(xstream_t & from_stream,const uint32_t compressed_data_size, xstream_t & to_stream);
+            static int32_t  decompress_from_stream(xstream_t & from_stream,const uint32_t compressed_data_size, std::string & to_string);
             
         protected:
             virtual void free_block(uint8_t* block_ptr,int32_t capacity)

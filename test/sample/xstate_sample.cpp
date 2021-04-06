@@ -35,11 +35,16 @@ int test_xstate(bool is_stress_test)
             _test_stream.write_compact_var(test_ui64);
             _test_stream.write_compact_var(test_string);
             
-            std::string bin_string;
-            top::base::xstream_t::compress_to_string(_test_stream, bin_string);
+            std::string compressed_bin_string_stage1;
+            top::base::xstream_t::compress_to_string(_test_stream,_test_stream.size(),compressed_bin_string_stage1);
+            std::string compressed_bin_string_stage2;
+            top::base::xstream_t::compress_to_string(compressed_bin_string_stage1,compressed_bin_string_stage2);
+            std::string decompressed_bin_string_stage2;
+            top::base::xstream_t::decompress_from_string(compressed_bin_string_stage2,decompressed_bin_string_stage2);
             _test_stream.reset();
-            top::base::xstream_t::decompress_from_string(bin_string, _test_stream);
+            top::base::xstream_t::decompress_from_string(decompressed_bin_string_stage2, _test_stream);
             
+
             std::string verify_string;
             int32_t verify_i32  = 0;
             uint32_t verify_ui32 = 0;
@@ -71,7 +76,7 @@ int test_xstate(bool is_stress_test)
             _test_stream.write_compact_var(test_string);
             
             std::string bin_string;
-            top::base::xstream_t::compress_to_string(_test_stream, bin_string);
+            top::base::xstream_t::compress_to_string(_test_stream,_test_stream.size(), bin_string);
             _test_stream.reset();
             top::base::xstream_t::decompress_from_string(bin_string, _test_stream);
             

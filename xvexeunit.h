@@ -16,13 +16,14 @@ namespace top
         public:
             enum enum_compile_optimization
             {
-                enum_compile_optimization_none = 0,
+                enum_compile_optimization_none = 0x00,
                 enum_compile_optimization_all  = 0x0F,
+                enum_compile_optimization_mask = 0x0F,
             };
             enum {enum_max_binlog_size = 536870912}; //1 << 29 = 536870912 = 512MB
-        public://compile & decompile then encode/decode to certain format
+        public://compile & decompile then encode/decode to certain format,encode_options = enum_compile_optimization | enum_compress_optimization
             static const int  encode(std::deque<xvmethod_t> & input_records,const int compile_options,xstream_t & output_bin);
-            static const int  decode(xstream_t & input_bin,std::deque<xvmethod_t> & output_records);
+            static const int  decode(xstream_t & input_bin,const uint32_t bin_size,std::deque<xvmethod_t> & output_records);
             
             static const int  encode(std::deque<xvmethod_t> & input_records,const int compile_options,std::string & output_bin);
             static const int  decode(const std::string & input_bin,std::deque<xvmethod_t> & output_records);
@@ -44,6 +45,7 @@ namespace top
         public:
             bool            record(const xvexeunit_t * exeobject,const xvmethod_t & op);//record instruction
             const int       encode(const int compile_options,xstream_t & output_bin);//compile all recorded op with optimization option
+            const int       encode(const int compile_options,std::string & output_bin);//compile all recorded op with optimization option
         protected:
             const std::deque<xvmethod_t> & get_op_records() const {return m_records;}
             

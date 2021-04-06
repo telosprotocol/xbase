@@ -116,6 +116,7 @@ namespace top
             virtual std::string         get_obj_name() const override {return name();}
             enum{enum_obj_type = enum_xobject_type_vheader};//allow xbase create xvheader_t object from xdataobj_t::read_from()
             
+            static uint32_t             make_block_version(uint8_t major,uint8_t minor,uint8_t patch){ return ( (((uint32_t)major) << 16) | (((uint32_t)minor) << 8) | ((uint32_t)patch) );}
         protected:
             xvheader_t();
             xvheader_t(const std::string & intput_hash,const std::string & output_hash);
@@ -137,6 +138,10 @@ namespace top
             //common information for this block
             inline uint32_t                    get_block_features()      const  { return (m_versions >> 24); }
             inline uint32_t                    get_block_version()       const  { return (m_versions & 0x00FFFFFF);}
+            inline int                         get_block_version_major() const  { return ((m_versions& 0x00FF0000) >> 16);}
+            inline int                         get_block_version_minor() const  { return ((m_versions& 0x0000FF00) >> 8);}
+            inline int                         get_block_version_patch() const  { return ((m_versions& 0x000000FF));}
+
             inline uint32_t                    get_chainid()    const {return m_chainid;}//chain id(24bit)
             inline uint64_t                    get_height()     const {return m_height;}
             inline uint64_t                    get_weight()     const {return m_weight;}
@@ -782,7 +787,8 @@ namespace top
             virtual int32_t             do_write(xstream_t & stream) override final; //not alow change behavior anymore
             virtual int32_t             do_read(xstream_t & stream)  override final; //not alow change behavior anymore
             virtual int32_t             serialize_from(xstream_t & stream) override final;//not allow subclass change behavior
-
+        public://still public serialize_to
+            virtual int32_t             serialize_to(xstream_t & stream) override final; //not allow subclass change behavior
         private:
             std::string                 m_cert_hash;        //hash(vqcert_bin)
             

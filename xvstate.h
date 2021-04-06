@@ -49,12 +49,13 @@ namespace top
             //bin-log related functions
             enum_xerror_code      encode_change_to_binlog(std::string & output_bin);//
             enum_xerror_code      encode_change_to_binlog(xstream_t & output_bin);//
-            bool                  apply_changes_of_binlog(const std::string & from_bin_log);//apply changes to current states,use carefully
-            virtual bool          apply_changes_of_binlog(xstream_t & from_bin_log);//apply changes to current states,use carefully
             
             enum_xerror_code      decode_change_from_binlog(const std::string & from_bin_log,std::deque<top::base::xvmethod_t> & out_records);
-            enum_xerror_code      decode_change_from_binlog(xstream_t & from_bin_log,std::deque<top::base::xvmethod_t> & out_records);
+            enum_xerror_code      decode_change_from_binlog(xstream_t & from_bin_log,const uint32_t bin_log_size,std::deque<top::base::xvmethod_t> & out_records);
             
+            bool                  apply_changes_of_binlog(const std::string & from_bin_log);//apply changes to current states,use carefully
+            virtual bool          apply_changes_of_binlog(xstream_t & from_bin_log,const uint32_t bin_log_size);//apply changes to current states,use carefully
+
         public://read-only
             const std::string&          get_account_addr() const {return m_account_addr;}
             const std::string&          get_block_output_hash() const {return m_block_output_hash;}
