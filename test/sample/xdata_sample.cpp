@@ -16,7 +16,6 @@
 #include "xpacket.h"
 #include "xsocket.h"
 #include "xutl.h"
-#include "xvstate.h"
 
 
 class xstringunit_t : public top::base::xdataunit_t

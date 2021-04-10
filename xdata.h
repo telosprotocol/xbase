@@ -28,7 +28,7 @@ namespace top
             enum_xdata_flag_signature  = 0x08,  //raw data is signed by authentication key
             enum_xdata_flag_shared     = 0x10,  //raw data is shared,usally it requiret to readonly and write-on-copy
             enum_xdata_flag_synced     = 0x20,  //raw data is from sync channel
-            enum_xdata_flag_acompress  = 0x40, //raw data compressed by lz4,note: only valid compress method is xcompress_t
+            enum_xdata_flag_acompress  = 0x40,  //raw data compressed by lz4,note: only valid compress method is xcompress_t
             enum_xdata_flag_max        = 0x80,  //can not over this
             
             enum_xdata_flags_mask      = 0xFF,  //Mask to keep them

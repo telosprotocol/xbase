@@ -421,8 +421,8 @@ typedef enum tag_enum_xid_type
 //predefine for enum_xid_class_xledger
 enum enum_vledger_const
 {
-    enum_vledger_has_buckets_count       = 16,     //4bit: max 16 buckets(aka zones) of each ledger
-    enum_vledger_has_zones_count         = enum_vledger_has_buckets_count,
+    enum_vchain_has_buckets_count       = 16,     //4bit: max 16 buckets(aka zones) of each ledger
+    enum_vchain_has_zones_count         = enum_vchain_has_buckets_count,
     enum_vbucket_has_books_count         = 32,    //7bit: each bucket has max 128 books
     enum_vbucket_has_books_count_mask    = enum_vbucket_has_books_count - 1,
     enum_vbook_has_tables_count          = 8,      //3bit: each book has max 8 tables
@@ -440,6 +440,8 @@ enum enum_vledger_const
 #define get_vledger_table_index(xid)    ( ((xid) >> 6 )  & 0x07  )  //3bit of range[0,7]
 
 #define get_vledger_account_index(xid)  get_xid_index(xid)          //32bit
+
+#define set_vledger_subaddr(book_index,table_index)  ( ((book_index & enum_vbucket_has_books_count_mask) << 3) | (table_index & enum_vbucket_has_tables_count_mask) )
 
 /*  /////////////////////////////////XIP,XIP2 defintion/////////////////////////////////////
  //XIP is 64bit address of the logic & virtual IP at overlay network
@@ -1217,3 +1219,8 @@ extern "C"
     #define xwarn2(...)        xwrite_log(__MODULE__,enum_xlog_level_warn,__VA_ARGS__)
     #define xerror2(...)       xwrite_log(__MODULE__,enum_xlog_level_error,__VA_ARGS__)
 #endif
+
+//xbase version definition
+#define     __XBASE_MAIN_VERSION_CODE__         1       //main version,max 255
+#define     __XBASE_FEATURE_VERSION_CODE__      2       //new feature,max 255
+#define     __XBASE_MINOR_VERSION_CODE__        1       //bug fix,max 255

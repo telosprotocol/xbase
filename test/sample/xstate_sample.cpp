@@ -7,6 +7,8 @@
 #include <assert.h>
 #include "xvstate.h"
 
+extern "C" int32_t wasmadd(int32_t value);
+
 template<typename T>
 class xvar_t
 {
@@ -18,6 +20,29 @@ public:
 
 int test_xstate(bool is_stress_test)
 {
+    const int result = wasmadd(3);
+    
+    //test system account
+    {
+        const std::string account_addr = top::base::xvaccount_t::make_account_address(top::base::enum_vaccount_addr_type_native_contract, top::base::enum_test_chain_id, top::base::enum_chain_zone_beacon_index, 127, 7, std::string("1234567890abcdef"));
+        const xvid_t account_id = top::base::xvaccount_t::get_xid_from_account(account_addr);
+        xassert(account_id != 0);
+        xassert(top::base::xvaccount_t::get_addrtype_from_account(account_addr) == top::base::enum_vaccount_addr_type_native_contract);
+        xassert(top::base::xvaccount_t::get_chainid_from_ledgerid(top::base::xvaccount_t::get_ledgerid_from_account(account_addr)) == top::base::enum_test_chain_id);
+        xassert(top::base::xvaccount_t::get_zoneindex_from_ledgerid(top::base::xvaccount_t::get_ledgerid_from_account(account_addr)) == top::base::enum_chain_zone_beacon_index);
+        //xassert(get_vledger_subaddr(account_id) == 1023);
+    }
+    //test regular account
+    {
+        const std::string account_addr = top::base::xvaccount_t::make_account_address(top::base::enum_vaccount_addr_type_secp256k1_user_account,top::base::xvaccount_t::make_ledger_id(top::base::enum_main_chain_id, top::base::enum_chain_zone_consensus_index),std::string("1234567890abcdef"));
+        const xvid_t account_id = top::base::xvaccount_t::get_xid_from_account(account_addr);
+        xassert(account_id != 0);
+        xassert(top::base::xvaccount_t::get_addrtype_from_account(account_addr) == top::base::enum_vaccount_addr_type_secp256k1_user_account);
+        xassert(top::base::xvaccount_t::get_chainid_from_ledgerid(top::base::xvaccount_t::get_ledgerid_from_account(account_addr)) == top::base::enum_main_chain_id);
+        xassert(top::base::xvaccount_t::get_zoneindex_from_ledgerid(top::base::xvaccount_t::get_ledgerid_from_account(account_addr)) == top::base::enum_chain_zone_consensus_index);
+    }
+    
+    
     //test varint and varstring first
     {
         //short string

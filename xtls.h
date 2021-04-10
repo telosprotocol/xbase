@@ -35,11 +35,11 @@ namespace top
                 enum_tls_predefined_key_memory      =  1,  //memory management of thread
                 enum_tls_predefined_key_mailbox     =  2,  //local maillbox for each thread
                 enum_tls_predefined_key_io_thread   =  3,  //each thread can hold one local xiothread_t object
-                
+
                 enum_tls_predefined_key_max         = 16
             };
             enum { enum_max_key_id          = 1024};
-            
+
         public:
             //max key value is 1023,if full or fail just return -1
             //thread-safe api
@@ -48,10 +48,10 @@ namespace top
         public:
             bool        set_tls_object(const int32_t keyId,xobject_t* pPtr);
             xobject_t*  get_tls_object(const int32_t keyId);
-            
+
             int32_t     get_cur_thread_id(bool generate_newid_if_not_exist = true);    //return new logic thread id if it dose not existing
             uint32_t    get_cur_sys_thread_id(); //query system ' thread_id of current calling
-            
+
             //Note:total local_id is 1 << 48(big enough),after that id turn around to 0 and increase again
             uint64_t    alloc_local_id(enum_local_xid_type type); //allocate one local_id that cross all process under current machine/device without lock
             //Note: count carry the how many count finally allocated,max count is 65535
@@ -80,5 +80,5 @@ namespace top
             pthread_key_t m_thread_slot_key; //just used for geting callback when each posix thread quit
             #endif
         };
-    }; //end of namespace of base
+    }//end of namespace of base
 }; //end of namespace of top
