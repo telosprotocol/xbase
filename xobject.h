@@ -6,12 +6,13 @@
 
 #include <string>
 #include <memory>
+#include <mutex>
 #include <functional>
 
-#include "xbase.h"
+#include "xrefcount.h"
+#include "xvevent.h"
 #include "xint.h"
 #include "xmem.h"
-
 
 namespace top
 {
@@ -24,28 +25,7 @@ namespace top
         class xiothread_t;
         class xiosignaler_t;
         class xcontext_t;
-        
-        class xrefcount_t
-        {
-        protected:
-            xrefcount_t();
-            virtual ~xrefcount_t();
-        public:
-            virtual int32_t   add_ref();
-            virtual int32_t   release_ref();
-        public:
-            int32_t           get_refcount() const { return m_refcount;}
-        protected:
-            //the default implementation do delete ,so any object inherited  from  xrefcount_t must create by new operator 
-            virtual bool      destroy()
-			{
-				delete this;
-				return true;
-			}
-        private:
-            std::atomic<int32_t>  m_refcount;     //reference count as atom operate
-        };
-        
+    
         //xobject_t require to create object by new ,and destroy by release
         enum enum_xobject_type
         {
@@ -91,15 +71,25 @@ namespace top
             enum_xobject_type_node      = -25, //xnode_t object
             enum_xobject_type_service   = -27, //service
 
-            enum_xobject_type_vaccount  = -28, //account
+            enum_xobject_type_vplugin    = -28, //xvplugin_t
+            enum_xobject_type_vaccount   = -29, //xvaccount_t
+            enum_xobject_type_vtable     = -30, //xvtable_t
+            enum_xobject_type_vbook      = -31, //xvbook_t
+            enum_xobject_type_vledger    = -32, //xvledger_t
+            enum_xobject_type_vchain     = -33, //xvchain_t
+            enum_xobject_type_vxdbstore  = -34, //xvdbstore_t
+            enum_xobject_type_vblockstore= -35, //manage vblock of db/disk
+            enum_xobject_type_vstatestore= -36, //state store
+            enum_xobject_type_vtxstore   = -37, //xvtxstore_t
+            enum_xobject_type_veventbus  = -38, //xveventbus_t
 
             enum_xobject_type_xdbgplugin = -39, //used for xdbgplugin_t 
             //block-chain related
-            enum_xobject_type_xhashplugin = -40, //universal hash function,refer xhash_t object
+            enum_xobject_type_xhashplugin= -40, //universal hash function,refer xhash_t object
             enum_xobject_type_vqccert   = -41, //quorum certification
             enum_xobject_type_vheader   = -42, //general virtual block header
             enum_xobject_type_vblock    = -43, //general virtual block object
-            enum_xobject_type_vbstore   = -44, //manage vblock of db/disk
+            enum_xobject_type_vbindex   = -44, //index for block
             enum_xobject_type_vcauth    = -45, //Certificate-Authority
             enum_xobject_type_vnodesvr  = -46, //service for Node management
             enum_xobject_type_vcache    = -47, //cache layer with function of persist store
@@ -109,7 +99,6 @@ namespace top
             enum_xobject_type_vinput    = -50, //general virtual input of block body
             enum_xobject_type_voutput   = -51, //general virtual outpu of block body
             enum_xobject_type_vbstate   = -52, //general virtual state of account
-            enum_xobject_type_statestore= -53, //state store
             
             //blockchain 'property related
             enum_xobject_type_vproperty     = -54, //general virtual property of account
@@ -148,7 +137,6 @@ namespace top
             enum_xobject_type_vprop_string_map      = -87, //std::map<std::string,int8_t>
             enum_xobject_type_vprop_hashmap         = -88, //std::map<std::string,std::map<std::string,std::string>>
             
-    
             
             enum_xobject_type_min       = -255,
         };
@@ -176,19 +164,25 @@ namespace top
             virtual std::string get_obj_name() const {return std::string();} //each object may has own name as plugin
   
             virtual bool      is_close();
+            virtual bool      is_live(const uint64_t timenow_ms){return true;}//test whether has been idel status
             virtual bool      close(bool force_async = true);
             
             //note: query_interface search vertically from subclass ->parent class ->root class of this object
             //note: query_interface not involve add_ref operation,so caller need do it manually if need keep returned ptr longer
             //caller respond to cast (void*) to related  interface ptr
             virtual void*     query_interface(const int32_t _enum_xobject_type_);
-            
+            //return true when event is handled completely
+            virtual bool      handle_event(const xvevent_t & ev){return false;}//let object have chance to handle event
+
+        public:
             //plugin query and register
             //note:query_plugin search horizontally from this  to parent for plugin
             //caller respond to cast (xobject_t*) to related object ptr,and release_ref it as query_plugin has done add_ref before return
             virtual xobject_t*  query_plugin(const std::string & plugin_uri){return NULL;} //uri must be formated as  ./name, ../name, */name, or name
+            //note:release the returned ptr by calling release_ref when nolonger use it
+            virtual xobject_t*  query_plugin(const uint32_t plugin_index){return NULL;}//fastest way to find plugin
             //register a plugin with name of object, must finish all registeration at init stage of object for multiple-thread safe
-            virtual bool        register_plugin(xobject_t * plugin_ptr) {return false;}
+            virtual bool        register_plugin(xobject_t * plugin_ptr,const int32_t plugin_slot = -1) {return false;}
      
             virtual std::string dump() const;  //just for debug purpose
        
@@ -196,7 +190,7 @@ namespace top
             void* operator    new(size_t size);
             void  operator    delete(void *p);
             #endif
-            
+        public:
             inline void       set_obj_flag(const uint16_t flag)  {m_object_flags |= flag;}   //subclass need arrange those flag well
             inline void       reset_obj_flag(const uint16_t flag){m_object_flags &= (~flag);}//subclass need ensure flag just keep 1 bit
             inline bool       check_obj_flag(const uint16_t flag) const {return ((m_object_flags & flag) != 0);}
@@ -377,8 +371,8 @@ namespace top
             friend class xdatabox_t;
             friend class xmailbox_t;
             friend class xiosignaler_t;
-            enum {enum_max_plugins_count = 8};
         protected:
+            enum {enum_max_plugins_count = 8};
             //note:_context must be valid until application/process exit
             xiobject_t(xcontext_t & _context,enum_xobject_type eType);//attach iobject at current thread
             xiobject_t(xcontext_t & _context,const int32_t target_thread_id,enum_xobject_type eType);//attach this object to  target_thread_id
@@ -428,9 +422,11 @@ namespace top
             //note:query_plugin search horizontally from this  to parent for plugin
             //caller respond to cast (xobject_t*) to related object ptr,and release_ref it as query_plugin has done add_ref before return
             virtual xobject_t*  query_plugin(const std::string & plugin_uri) override; //uri must be formated as  ./name, ../name, */name, or name
+            //note:release the returned ptr by calling release_ref when nolonger use it
+            virtual xobject_t*  query_plugin(const uint32_t plugin_index) override;//fastest way to find plugin
             
             //register a plugin with name of object, must finish all registeration at init stage of object for multiple-thread safe
-            virtual bool        register_plugin(xobject_t * plugin_ptr) override;
+            virtual bool        register_plugin(xobject_t * plugin_ptr,const int32_t plugin_slot = -1) override;
             
         protected:
             //on_object_close be called when close command processed at host thread,logic flow: Caller(Thread#A)->Close()->Wake this object thread(B)->clean and then execute: on_object_close
@@ -529,78 +525,16 @@ namespace top
             xcontext_t  *       m_ptr_context;         //associated with global context object
             int32_t             m_thread_id;           //the logic thread id whom this object belong to under m_pContext
             enum_xobject_status m_status;              //status of io object
-        private: //note: only support max 8 plugins for one object as considering size and reality
+        protected: //note: only support max 8 plugins for one object as considering size and reality
             xobject_t*          m_plugins[enum_max_plugins_count];
         };
         
-        enum enum_xevent_route_path
-        {
-            enum_xevent_route_path_down = 0,  //event go down from higher layer/object to lower layer
-            enum_xevent_route_path_up   = 1,  //event go up   from lower  layer/object to upper layer
-        };
-        
-        enum enum_xevent_type
-        {
-            enum_xevent_app_type_max      = 32765,
-            enum_xevent_app_type_min      =  1,
-            
-            enum_xevent_type_invalid      =  0, //below event types are reserved by xbase
-
-            enum_xevent_core_type_pdu     = -5, //that is a event of pdu(usally from/to network)
-            enum_xevent_core_type_timer   = -6, //that is a system event of time,more about NTP change
-            enum_xevent_core_type_clock   = -7, //that is an event of global clock(distributed logic clock)
-            enum_xevent_core_type_create_block = -8, //that is an event to create block by upper layer and pass back to lowwer layer
-            enum_xevent_core_type_tc      = -9, //that is an event of time cert block
-        };
-        
-        //general event wrap
-        class xvevent_t : public xobject_t
-        {
-        protected:
-            xvevent_t(const int _event_type);
-            virtual ~xvevent_t();
-        private:
-            xvevent_t();
-            xvevent_t(const xvevent_t & obj);
-            xvevent_t& operator = (const xvevent_t & obj);
-        public:
-            const int           get_type()         const {return m_event_type;}
-            const int           get_priority()     const {return m_event_priority;}
-            const int           get_error_code()   const {return m_error_code;}
-            const std::string&  get_result_data()  const {return m_result_data;}
-            const xvip2_t&      get_from_xip()     const {return m_from_xip;}
-            const xvip2_t&      get_to_xip()       const {return m_to_xip;}
-            const uint64_t      get_cookie()       const {return m_event_cookie;}
-            const uint64_t      get_clock()        const {return m_event_clock;}
-            
-            void                set_from_xip(const xvip2_t & from) {m_from_xip = from;}
-            void                set_to_xip(const xvip2_t & to)      {m_to_xip = to;}
-            void                set_cookie(const uint64_t cookie){m_event_cookie = cookie;}
-            void                set_clock(const uint64_t clock){m_event_clock = clock;}
-            
-            enum_xevent_route_path get_route_path() const; //default is enum_xevent_route_path_down
-            void                   set_route_path(enum_xevent_route_path path); //mark what is direction of this event will route
-            
-            virtual  void*      query_interface(const int32_t type) override; //caller respond to cast (void*) to related  interface ptr
-        private:
-            xvip2_t             m_from_xip;    //from address
-            xvip2_t             m_to_xip;      //target address ,-1 means to broadcast everyone,and 0 means anyone may handle,
-            uint64_t            m_event_clock;  //application set latest clock(it might global clock time or height)
-            uint64_t            m_event_cookie; //application may set cookie let event carry
-            int16_t             m_event_type;   //init as 0 that is invalid
-        protected:
-            int16_t             m_event_priority;//priority level for event
-            int16_t             m_reserved_for_event;
-            
-            int16_t             m_error_code;  //default it is 0 = successful
-            std::string         m_result_data; //default it is empty
-        };
-    
         //xionode_t manage chain structure with parent & child xiobject
         class xionode_t : public xiobject_t
         {
         protected:
             xionode_t(xionode_t & parent_object,enum_xobject_type eType);
+            xionode_t(xionode_t & parent_object,const int32_t thread_id,enum_xobject_type eType);
             xionode_t(xcontext_t & _context,const int32_t thread_id,enum_xobject_type eType);
             virtual ~xionode_t();
         private:
@@ -875,7 +809,7 @@ namespace top
         make_auto_ptr(ArgsT && ... args) {
             return xauto_ptr<T>(new T(std::forward<ArgsT>(args)... ));
         }
-        
+    
         //auto addref when contruct and do releaes_ref when out of scope
         template<typename T>
         class auto_reference : public xauto_ptr<T>

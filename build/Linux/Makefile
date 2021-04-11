@@ -65,14 +65,10 @@ OBJFILES=$(OBJDIR)/xlog.o  			\
 		$(OBJDIR)/lz4.o  			\
 		$(OBJDIR)/xbasepdu.o  		\
 		$(OBJDIR)/xpacket.o  		\
+		$(OBJDIR)/xvevent.o  		\
 		$(OBJDIR)/xobject.o  		\
 		$(OBJDIR)/xdata.o  			\
 		$(OBJDIR)/xvmethod.o  		\
-		$(OBJDIR)/xvexeunit.o  		\
-		$(OBJDIR)/xvproperty.o  	\
-		$(OBJDIR)/xvstate.o  		\
-		$(OBJDIR)/xvblock.o  		\
-		$(OBJDIR)/xvledger.o  		\
 		$(OBJDIR)/xendpoint.o  		\
 		$(OBJDIR)/xservice.o  		\
 		$(OBJDIR)/xconnection.o 	\
@@ -154,7 +150,10 @@ $(OBJDIR)/xbasepdu.o: ../../src/xbasepdu.cpp
 	
 $(OBJDIR)/xpacket.o: ../../src/xpacket.cpp
 	$(CC) $(OPTIONS) $(CFLAGS) $(INCLUDES) -o $(OBJDIR)/xpacket.o $?
-	
+
+$(OBJDIR)/xvevent.o: ../../src/xvevent.cpp
+	$(CC) $(OPTIONS) $(CFLAGS) $(INCLUDES) -o $(OBJDIR)/xvevent.o $?
+
 $(OBJDIR)/xobject.o: ../../src/xobject.cpp
 	$(CC) $(OPTIONS) $(CFLAGS) $(INCLUDES) -o $(OBJDIR)/xobject.o $?
 	
@@ -163,22 +162,7 @@ $(OBJDIR)/xdata.o: ../../src/xdata.cpp
 
 $(OBJDIR)/xvmethod.o: ../../src/xvmethod.cpp
 	$(CC) $(OPTIONS) $(CFLAGS) $(INCLUDES) -o $(OBJDIR)/xvmethod.o $?
-		
-$(OBJDIR)/xvexeunit.o: ../../src/xvexeunit.cpp
-	$(CC) $(OPTIONS) $(CFLAGS) $(INCLUDES) -o $(OBJDIR)/xvexeunit.o $?
-	
-$(OBJDIR)/xvproperty.o: ../../src/xvproperty.cpp
-	$(CC) $(OPTIONS) $(CFLAGS) $(INCLUDES) -o $(OBJDIR)/xvproperty.o $?
-
-$(OBJDIR)/xvstate.o: ../../src/xvstate.cpp
-	$(CC) $(OPTIONS) $(CFLAGS) $(INCLUDES) -o $(OBJDIR)/xvstate.o $?
-
-$(OBJDIR)/xvblock.o: ../../src/xvblock.cpp
-	$(CC) $(OPTIONS) $(CFLAGS) $(INCLUDES) -o $(OBJDIR)/xvblock.o $?
-	
-$(OBJDIR)/xvledger.o: ../../src/xvledger.cpp
-	$(CC) $(OPTIONS) $(CFLAGS) $(INCLUDES) -o $(OBJDIR)/xvledger.o $?
-	
+			
 $(OBJDIR)/xendpoint.o: ../../src/xendpoint.cpp
 	$(CC) $(OPTIONS) $(CFLAGS) $(INCLUDES) -o $(OBJDIR)/xendpoint.o $?
 	
