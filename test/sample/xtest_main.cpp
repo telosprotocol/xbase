@@ -1,5 +1,4 @@
 ﻿#include "xvnet_worker.h"
-#include "xbasic/xns_macro.h"
 #include "xchaininit/xinit.h"
 #include "xdata/xchain_param.h"
 #include "xmock_biz_obj.h"
