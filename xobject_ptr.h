@@ -14,9 +14,7 @@
 #    pragma warning(push, 0)
 #endif
 
-#include "xbase/xdata.h"
-#include "xbase/xobject.h"
-#include "xbase/xthread.h"
+#include "xbase/xrefcount.h"
 
 #if defined(__clang__)
 #    pragma clang diagnostic pop
@@ -30,6 +28,14 @@
 
 #include <cassert>
 #include <type_traits>
+#include <utility>
+
+NS_BEG2(top, base)
+
+template<typename T>  //T must be subclass of i_refcount_t
+class xauto_ptr;
+
+NS_END2
 
 NS_BEG1(top)
 
@@ -73,19 +79,8 @@ public:
         other.m_ptr = nullptr;
     }
 
-    xobject_ptr_t(base::xauto_ptr<T> const & other) : m_ptr{other.get()} {
-        if (m_ptr != nullptr) {
-            m_ptr->add_ref();
-        }
-    }
-
-    xobject_ptr_t(base::xauto_ptr<T> && other) : m_ptr{other.get()} {
-        if (m_ptr != nullptr) {
-            m_ptr->add_ref();
-        }
-
-        other = nullptr;
-    }
+    xobject_ptr_t(base::xauto_ptr<T> const & other);
+    xobject_ptr_t(base::xauto_ptr<T> && other);
 
     void attach(T * ptr) {
         if (m_ptr != nullptr) {
@@ -176,34 +171,8 @@ public:
         return *this;
     }
 
-    xobject_ptr_t & operator=(base::xauto_ptr<T> const & other) {
-        if (other != nullptr) {
-            other->add_ref();
-        }
-
-        if (m_ptr != nullptr) {
-            m_ptr->release_ref();
-        }
-
-        m_ptr = other.get();
-
-        return *this;
-    }
-
-    xobject_ptr_t & operator=(base::xauto_ptr<T> && other) {
-        if (other != nullptr) {
-            other->add_ref();
-        }
-
-        if (m_ptr != nullptr) {
-            m_ptr->release_ref();
-        }
-
-        m_ptr = other.get();
-        other = nullptr;
-
-        return *this;
-    }
+    xobject_ptr_t & operator=(base::xauto_ptr<T> const & other);
+    xobject_ptr_t & operator=(base::xauto_ptr<T> && other);
 
     xobject_ptr_t & operator=(std::nullptr_t) {
         if (m_ptr != nullptr) {
@@ -238,14 +207,11 @@ public:
         return *m_ptr;
     }
 
-    operator base::xauto_ptr<T>() const noexcept {
-        if (m_ptr != nullptr) {
-            m_ptr->add_ref();
-            return base::xauto_ptr<T>{m_ptr};
-        }
-
-        return base::xauto_ptr<T>{nullptr};
+    explicit operator bool() const noexcept {
+        return m_ptr != nullptr;
     }
+
+    operator base::xauto_ptr<T>() const noexcept;
 
     // disable conversion from xauto_ptr<U> to xobject_ptr_t<T>, it should be implemented like std::static_pointer_cast, std::const_pointer_cast and dynamic_pointer_cast
     // template <typename U, typename std::enable_if<!std::is_same<T, U>::value && (std::is_convertible<T *, U *>::value || std::is_base_of<T, U>::value)>::type * = nullptr>
@@ -304,6 +270,86 @@ xobject_ptr_t<T> dynamic_xobject_ptr_cast(xobject_ptr_t<U> const & r) noexcept {
     o.attach(p);
 
     return o;
+}
+
+NS_END1
+
+#if defined(__clang__)
+#    pragma clang diagnostic push
+#    pragma clang diagnostic ignored "-Wpedantic"
+#elif defined(__GNUC__)
+#    pragma GCC diagnostic push
+#    pragma GCC diagnostic ignored "-Wpedantic"
+#elif defined(_MSC_VER)
+#    pragma warning(push, 0)
+#endif
+
+#include "xbase/xthread.h"
+
+#if defined(__clang__)
+#    pragma clang diagnostic pop
+#elif defined(__GNUC__)
+#    pragma GCC diagnostic pop
+#elif defined(_MSC_VER)
+#    pragma warning(pop)
+#endif
+NS_BEG1(top)
+
+template <typename T>
+xobject_ptr_t<T>::xobject_ptr_t(base::xauto_ptr<T> const & other) : m_ptr{ other.get() } {
+    if (m_ptr != nullptr) {
+        m_ptr->add_ref();
+    }
+}
+
+template <typename T>
+xobject_ptr_t<T>::xobject_ptr_t(base::xauto_ptr<T> && other) : m_ptr{ other.get() } {
+    if (m_ptr != nullptr) {
+        m_ptr->add_ref();
+    }
+
+    other = nullptr;
+}
+
+template <typename T>
+xobject_ptr_t<T> & xobject_ptr_t<T>::operator=(base::xauto_ptr<T> const & other) {
+    if (other != nullptr) {
+        other->add_ref();
+    }
+
+    if (m_ptr != nullptr) {
+        m_ptr->release_ref();
+    }
+
+    m_ptr = other.get();
+
+    return *this;
+}
+
+template <typename T>
+xobject_ptr_t<T> & xobject_ptr_t<T>::operator=(base::xauto_ptr<T> && other) {
+    if (other != nullptr) {
+        other->add_ref();
+    }
+
+    if (m_ptr != nullptr) {
+        m_ptr->release_ref();
+    }
+
+    m_ptr = other.get();
+    other = nullptr;
+
+    return *this;
+}
+
+template <typename T>
+xobject_ptr_t<T>::operator base::xauto_ptr<T>() const noexcept {
+    if (m_ptr != nullptr) {
+        m_ptr->add_ref();
+        return base::xauto_ptr<T>{m_ptr};
+    }
+
+    return base::xauto_ptr<T>{nullptr};
 }
 
 template <typename T, typename U>

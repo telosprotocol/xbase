@@ -120,16 +120,5 @@ namespace top
             int64_t     m_time;
             bool        sync;
         };
-        
-        typedef std::shared_ptr<xevent_t> xevent_ptr_t;
-    
-        #define DEFINE_SHARED_PTR(type) \
-            using type##_ptr_t = std::shared_ptr<type##_t>
-    
-       // DEFINE_SHARED_PTR(xevent);
-    
-    };//end of namespace of mbus
-};
-
-
- 
+    }//end of namespace of mbus
+}
