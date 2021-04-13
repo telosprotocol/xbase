@@ -79,8 +79,7 @@ public:
         other.m_ptr = nullptr;
     }
 
-    xobject_ptr_t(base::xauto_ptr<T> const & other);
-    xobject_ptr_t(base::xauto_ptr<T> && other);
+    xobject_ptr_t(base::xauto_ptr<T> const & other) noexcept;
 
     void attach(T * ptr) {
         if (m_ptr != nullptr) {
@@ -296,19 +295,10 @@ NS_END1
 NS_BEG1(top)
 
 template <typename T>
-xobject_ptr_t<T>::xobject_ptr_t(base::xauto_ptr<T> const & other) : m_ptr{ other.get() } {
+xobject_ptr_t<T>::xobject_ptr_t(base::xauto_ptr<T> const & other) noexcept : m_ptr{ other.get() } {
     if (m_ptr != nullptr) {
         m_ptr->add_ref();
     }
-}
-
-template <typename T>
-xobject_ptr_t<T>::xobject_ptr_t(base::xauto_ptr<T> && other) : m_ptr{ other.get() } {
-    if (m_ptr != nullptr) {
-        m_ptr->add_ref();
-    }
-
-    other = nullptr;
 }
 
 template <typename T>
