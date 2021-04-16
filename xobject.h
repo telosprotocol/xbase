@@ -99,6 +99,7 @@ namespace top
             enum_xobject_type_vinput    = -50, //general virtual input of block body
             enum_xobject_type_voutput   = -51, //general virtual outpu of block body
             enum_xobject_type_vbstate   = -52, //general virtual state of account
+            enum_xobject_type_voffdata  = -53, //general virtual offchain data of block
             
             //blockchain 'property related
             enum_xobject_type_vproperty     = -54, //general virtual property of account
