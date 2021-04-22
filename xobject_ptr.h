@@ -241,7 +241,7 @@ bool operator==(std::nullptr_t, xobject_ptr_t<T> const & o) {
 template <typename T, typename... ArgsT>
 xobject_ptr_t<T> make_object_ptr(ArgsT &&... args) {
     xobject_ptr_t<T> object;
-    object.attach(new T{std::forward<ArgsT>(args)...});
+    object.attach(new T(std::forward<ArgsT>(args)...));
     return object;
 }
 
