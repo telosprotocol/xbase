@@ -171,7 +171,6 @@ public:
     }
 
     xobject_ptr_t & operator=(base::xauto_ptr<T> const & other);
-    xobject_ptr_t & operator=(base::xauto_ptr<T> && other);
 
     xobject_ptr_t & operator=(std::nullptr_t) {
         if (m_ptr != nullptr) {
@@ -312,22 +311,6 @@ xobject_ptr_t<T> & xobject_ptr_t<T>::operator=(base::xauto_ptr<T> const & other)
     }
 
     m_ptr = other.get();
-
-    return *this;
-}
-
-template <typename T>
-xobject_ptr_t<T> & xobject_ptr_t<T>::operator=(base::xauto_ptr<T> && other) {
-    if (other != nullptr) {
-        other->add_ref();
-    }
-
-    if (m_ptr != nullptr) {
-        m_ptr->release_ref();
-    }
-
-    m_ptr = other.get();
-    other = nullptr;
 
     return *this;
 }
