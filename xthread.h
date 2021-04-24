@@ -301,5 +301,5 @@ namespace top
         private:
             xworker_t * m_worker_threads[_max_threads_count];
         };
-    };//end of namespace of base
-}; //end of namespace of top
+    }//end of namespace of base
+} //end of namespace of top

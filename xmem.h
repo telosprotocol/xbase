@@ -2386,5 +2386,5 @@ namespace top
             int32_t   m_nCursor;    //read position relative 0
             int32_t   m_nSize;      //total avaiable data
         };
-    };//end of namespace of base
-}; //end of namespace top
+    }//end of namespace of base
+} //end of namespace top

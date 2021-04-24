@@ -835,6 +835,6 @@ namespace top
             auto_reference & operator = (const auto_reference &);
         };
 
-    };//end of namespace of base
-}; //end of namespace top
+    }//end of namespace of base
+} //end of namespace top
 

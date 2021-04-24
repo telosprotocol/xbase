@@ -332,5 +332,5 @@ namespace top
                 _VOLATILE_ACCESS_(T,org_value) = new_value;
             }
         };
-    };//end of namespace base
-};//end of namespace top
+    }//end of namespace base
+}//end of namespace top

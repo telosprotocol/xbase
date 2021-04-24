@@ -454,6 +454,6 @@ namespace  top
             std::recursive_mutex  m_mutex;
             xlrouter_t*      m_routers[const_max_xnetwork_types_count][const_max_routers_count];
         };
-    }; //end of namespace of base
-}; //end of namesapce of top
+    } //end of namespace of base
+} //end of namesapce of top
 

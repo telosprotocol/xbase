@@ -192,6 +192,6 @@ namespace top
             uint8_t                 m_inwriting;
         };
 
-    };//end of namespace of base
-}; //end of namespace top
+    }//end of namespace of base
+} //end of namespace top
 

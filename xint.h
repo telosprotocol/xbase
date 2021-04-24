@@ -248,7 +248,7 @@ namespace top
 #else
     typedef  uint128_t                 xuint128_t;
 #endif
-}; //end of namespace top
+}//end of namespace top
 
 
 

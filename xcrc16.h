@@ -31,4 +31,4 @@ namespace top
             uint16_t m_hash;  /// hash
         };
     }
-};
+}

@@ -80,5 +80,5 @@ namespace top
             pthread_key_t m_thread_slot_key; //just used for geting callback when each posix thread quit
             #endif
         };
-    }; //end of namespace of base
-}; //end of namespace of top
+    } //end of namespace of base
+} //end of namespace of top
