@@ -31,8 +31,8 @@ namespace top
         private:
             std::atomic<int32_t>  m_refcount;     //reference count as atom operate
         };
-    };//end of namespace base
-};//end of namespace top
+    }//end of namespace base
+}//end of namespace top
 
 
 

@@ -52,4 +52,4 @@ namespace top
             uint32_t    m_last_data_seq_id;
         };
     }
-};
+}

@@ -1147,5 +1147,5 @@ namespace top
             xbftpdu_t & operator = (const xbftpdu_t &);
         };
                 
-    };//end of namespace base
-}; //end of namespace top
+    }//end of namespace base
+} //end of namespace top

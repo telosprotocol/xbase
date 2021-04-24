@@ -48,4 +48,4 @@ namespace top
             static int lz4_get_compressed_bound_size(int inputSize); //calcuate the max size after compresessed  inputSize
         };
     }
-};
+}

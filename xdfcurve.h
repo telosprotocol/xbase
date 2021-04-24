@@ -20,6 +20,6 @@ namespace top
             static bool create_xdf_shared_secret(uint8_t my_private_key[32],uint8_t peer_public_key[32],uint8_t out_shared_secret_key[32]);
         };
     }
-};
+}
 
 
