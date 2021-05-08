@@ -149,6 +149,8 @@
 		997716172263171900C918F7 /* xbasepdu.h in Headers */ = {isa = PBXBuildFile; fileRef = 997716152263171900C918F7 /* xbasepdu.h */; };
 		997AC6132214FECF004477CD /* xaes.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 993D268421E1AA7900E46484 /* xaes.cpp */; };
 		997AC6142214FECF004477CD /* xdfcurve.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 993D268621E1AA7900E46484 /* xdfcurve.cpp */; };
+		9992FD882636179D007875EF /* xobject_ptr.h in Headers */ = {isa = PBXBuildFile; fileRef = 9992FD872636179D007875EF /* xobject_ptr.h */; };
+		9992FD892636179D007875EF /* xobject_ptr.h in Headers */ = {isa = PBXBuildFile; fileRef = 9992FD872636179D007875EF /* xobject_ptr.h */; };
 		99A6A54325EB685400EA149F /* xvmethod.h in Headers */ = {isa = PBXBuildFile; fileRef = 99A6A54225EB685400EA149F /* xvmethod.h */; };
 		99A6A54425EB685400EA149F /* xvmethod.h in Headers */ = {isa = PBXBuildFile; fileRef = 99A6A54225EB685400EA149F /* xvmethod.h */; };
 		99A6A54625EB686600EA149F /* xvmethod.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 99A6A54525EB686600EA149F /* xvmethod.cpp */; };
@@ -238,6 +240,7 @@
 		996F4FE72620D83100630E1E /* xvevent.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = xvevent.h; path = ../../xvevent.h; sourceTree = "<group>"; };
 		9977160F226316DA00C918F7 /* xbasepdu.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = xbasepdu.cpp; sourceTree = "<group>"; };
 		997716152263171900C918F7 /* xbasepdu.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = xbasepdu.h; path = ../../xbasepdu.h; sourceTree = "<group>"; };
+		9992FD872636179D007875EF /* xobject_ptr.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = xobject_ptr.h; path = ../../xobject_ptr.h; sourceTree = "<group>"; };
 		99A6A54225EB685400EA149F /* xvmethod.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = xvmethod.h; path = ../../xvmethod.h; sourceTree = "<group>"; };
 		99A6A54525EB686600EA149F /* xvmethod.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = xvmethod.cpp; sourceTree = "<group>"; };
 		99C994CF2137E184004D1049 /* xdata.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = xdata.cpp; sourceTree = "<group>"; };
@@ -340,6 +343,7 @@
 				996F4FE12620D68600630E1E /* xrefcount.h */,
 				996F4FE72620D83100630E1E /* xvevent.h */,
 				991EA52A211EEBBF0042E934 /* xobject.h */,
+				9992FD872636179D007875EF /* xobject_ptr.h */,
 				994F8F7721B230BD00EFA18F /* xsocket.h */,
 				994F8F6D21AFE2D000EFA18F /* xendpoint.h */,
 				9915BDBB2254954C00F43C51 /* xconnection.h */,
@@ -415,6 +419,7 @@
 				992D406B2131511E00638492 /* xmem.h in Headers */,
 				992D406D2131511E00638492 /* xtimer.h in Headers */,
 				992D406E2131511E00638492 /* xuvimpl.h in Headers */,
+				9992FD892636179D007875EF /* xobject_ptr.h in Headers */,
 				996F4FE92620D83100630E1E /* xvevent.h in Headers */,
 				997716172263171900C918F7 /* xbasepdu.h in Headers */,
 				9915BDF42259E13B00F43C51 /* xcompress.h in Headers */,
@@ -443,6 +448,7 @@
 				993FDB4E212AB1770032AA04 /* xthread.h in Headers */,
 				994F8F1B21AE876D00EFA18F /* xpipe.h in Headers */,
 				991E2037225E2AAE006FB666 /* xxhash.h in Headers */,
+				9992FD882636179D007875EF /* xobject_ptr.h in Headers */,
 				9933E7A321BCEE7F00A8765E /* xutl.h in Headers */,
 				991ECB9E2123C9E50042E934 /* xlog.h in Headers */,
 				99C994D42137E19C004D1049 /* xdata.h in Headers */,

@@ -842,6 +842,15 @@ namespace top
                 return *this;
             }
         public: //not safe for multiple threads
+            bool find(const std::string & key)
+            {
+                std_map::iterator it = m_std_map.find(key);
+                if(it != m_std_map.end())
+                {
+                    return true;
+                }
+                return false;
+            }
             bool get(const std::string & key,std::string & value)
             {
                 std_map::iterator it = m_std_map.find(key);
@@ -1147,5 +1156,5 @@ namespace top
             xbftpdu_t & operator = (const xbftpdu_t &);
         };
                 
-    }//end of namespace base
-} //end of namespace top
+    };//end of namespace base
+}; //end of namespace top

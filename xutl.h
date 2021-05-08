@@ -380,5 +380,5 @@ namespace top
             int32_t     m_tokens_count;     //how many tokens current own,could be negative as borrow
             int64_t     m_last_filltime_ms; //the last time fill bucket
         };
-    }//end of namespace base
-}//end of namespace top
+    };//end of namespace base
+};//end of namespace top

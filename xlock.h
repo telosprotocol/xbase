@@ -86,7 +86,10 @@ namespace top
             ~xauto_try_lock_t()
             {
                 if(m_bacquired_lock)
+                {
                     m_ptr_raw_locker->unlock();
+                    m_bacquired_lock = false;
+                }
             }
         public:
             bool  is_locked() const {return m_bacquired_lock;}
@@ -192,6 +195,6 @@ namespace top
             uint8_t                 m_inwriting;
         };
 
-    }//end of namespace of base
-} //end of namespace top
+    };//end of namespace of base
+}; //end of namespace top
 

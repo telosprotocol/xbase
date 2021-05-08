@@ -151,7 +151,7 @@ namespace top
             
             ~xvalue_t();
         public:
-            int32_t     serialize_to(xstream_t & stream);        //serialize header and object,return how many bytes is writed
+            int32_t     serialize_to(xstream_t & stream) const;        //serialize header and object,return how many bytes is writed
             int32_t     serialize_from(xstream_t & stream);      //serialize header and object,return how many bytes is readed
             
         private:
@@ -159,7 +159,7 @@ namespace top
             void         copy_from(const xvalue_t & right);
             void         move_from(xvalue_t & right);
             //internal write & read operation
-            int32_t      do_write(xstream_t & stream);
+            int32_t      do_write(xstream_t & stream) const;
             int32_t      do_read(xstream_t & stream);
             
             inline void* get_anyptr()   const {return any_ptr;}
@@ -361,7 +361,7 @@ namespace top
       
             virtual void*  query_interface(const int32_t _enum_xobject_type_) override;
         public:
-            int32_t     serialize_to(xstream_t & stream);        //serialize header and object,return how many bytes is writed
+            int32_t     serialize_to(xstream_t & stream) const;        //serialize header and object,return how many bytes is writed
             int32_t     serialize_from(xstream_t & stream);      //serialize header and object,return how many bytes is readed
             
         private:
@@ -384,62 +384,92 @@ namespace top
             {
                 enum_op_params_max_count             = 3,
                 
-                enum_op_call_method_by_name          = 1 << 6,    //call by method_name or method_id
-                enum_op_call_method_by_target        = 1 << 7,    //carry target as long call
+                enum_op_call_method_by_name          = 1 << 5,    //call by method_name or method_id
+                enum_op_call_method_by_target        = 1 << 6,    //carry target as long call
+                enum_op_call_method_by_caller        = 1 << 7,    //carry caller uri
             };
-        public:
+        public://note: the max method_type is 0x07
             xvmethod_t(); //construct nil op
             
             //member'method_id related construction
-            xvmethod_t(const std::string & target_uri,const uint8_t code,const int8_t method_id);
-            xvmethod_t(const std::string & target_uri,const uint8_t code,const int8_t method_id,xvalue_t & param);
-            xvmethod_t(const std::string & target_uri,const uint8_t code,const int8_t method_id,xvalue_t & param1,xvalue_t & param2);
-            xvmethod_t(const std::string & target_uri,const uint8_t code,const int8_t method_id,xvalue_t & param1,xvalue_t & param2,xvalue_t & param3);
+            xvmethod_t(const std::string & target_uri,const uint8_t method_type,const int8_t method_id);
+            xvmethod_t(const std::string & target_uri,const uint8_t method_type,const int8_t method_id,xvalue_t & param);
+            xvmethod_t(const std::string & target_uri,const uint8_t method_type,const int8_t method_id,xvalue_t & param1,xvalue_t & param2);
+            xvmethod_t(const std::string & target_uri,const uint8_t method_type,const int8_t method_id,xvalue_t & param1,xvalue_t & param2,xvalue_t & param3);
             
             //member'method_name related construction
-            xvmethod_t(const std::string & target_uri,const uint8_t code,const std::string & method_name);
-            xvmethod_t(const std::string & target_uri,const uint8_t code,const std::string & method_name,xvalue_t & param);
-            xvmethod_t(const std::string & target_uri,const uint8_t code,const std::string & method_name,xvalue_t & param1,xvalue_t & param2);
-            xvmethod_t(const std::string & target_uri,const uint8_t code,const std::string & method_name,xvalue_t & param1,xvalue_t & param2,xvalue_t & param3);
+            xvmethod_t(const std::string & target_uri,const uint8_t method_type,const std::string & method_name);
+            xvmethod_t(const std::string & target_uri,const uint8_t method_type,const std::string & method_name,xvalue_t & param);
+            xvmethod_t(const std::string & target_uri,const uint8_t method_type,const std::string & method_name,xvalue_t & param1,xvalue_t & param2);
+            xvmethod_t(const std::string & target_uri,const uint8_t method_type,const std::string & method_name,xvalue_t & param1,xvalue_t & param2,xvalue_t & param3);
             
             //copy & move & assign construction
             xvmethod_t(xvmethod_t && obj);
-            xvmethod_t(const xvmethod_t & obj);
-            xvmethod_t(const xvmethod_t & obj,const std::string & new_target_uri);//clone and modify to new target uri
-            xvmethod_t & operator = (const xvmethod_t & right);
+            xvmethod_t(const xvmethod_t & obj,bool copy_result = true);
+            xvmethod_t(const xvmethod_t & obj,const std::string & new_target_uri,bool copy_result = true);//clone and modify to new target uri
+            xvmethod_t(const xvmethod_t & obj,const std::string & new_caller_uri,const std::string & new_target_uri,bool copy_result = true);
             
-            ~xvmethod_t();
+            virtual ~xvmethod_t();
         public:
+            inline const std::string&           get_caller_uri()   const {return m_caller_uri;}
             inline const std::string&           get_method_uri()   const {return m_method_uri;}
-            inline const int                    get_method_type()  const {return (m_op_code & 0x0F);}
+            inline const int                    get_method_type()  const {return (m_op_code & 0x07);}
             inline const std::string&           get_method_name()  const {return m_method_name;}
             inline const int8_t                 get_method_id()    const {return m_method_id;}//gurantee less than INT8_MAX
             
-            inline const  int                   get_params_count() const {return ((m_op_code & 0x30) >> 4);}
+            inline const  int                   get_params_count() const {return ((m_op_code >> 3) & 0x3);}
             inline const std::deque<xvalue_t>&  get_method_params()const {return m_method_params;}
             
+            inline xvalue_t*                    get_method_result()const {return m_method_result;}
+            
             //indicate whether carry target inside
+            inline bool                         has_caller_uri()   const {return ((m_op_code & enum_op_call_method_by_caller)  != 0);}
             inline bool                         has_method_uri()   const {return ((m_op_code & enum_op_call_method_by_target)  != 0);}
             //indicate wheter to use method_name to find meethod
             inline bool                         is_name_method()   const {return ((m_op_code & enum_op_call_method_by_name) != 0);}
             inline bool                         is_id_method()     const {return !is_name_method();}
+        
+            inline void                         set_cookie(const uint64_t new_cookie) { m_cookie = new_cookie;}
+
+            //note:result not allow overwrite if already has one valid result existing
+            bool                                copy_result(const xvalue_t & result);//return whether successful
+            bool                                move_result(xvalue_t && result);//return whether successful
             
         public:
-            int32_t         serialize_to(xstream_t & stream);        //serialize header and object,return how many bytes is writed
-            int32_t         serialize_from(xstream_t & stream);      //serialize header and object,return how many bytes is readed
+            //caller respond to cast (void*) to related  interface ptr
+            virtual void*       query_minterface(const int32_t _enum_xobject_type_) const {return (xvmethod_t*)this;}
+            virtual std::string dump() const;  //just for debug purpose
+            
+            //serialize header and object,return how many bytes is writed
+            int32_t         serialize_to(xstream_t & stream) const;
+            //serialize header and object,return how many bytes is readed
+            int32_t         serialize_from(xstream_t & stream);
+        protected:
+            void            set_caller_uri(const std::string & caller_uri);
+            xvmethod_t & operator = (const xvmethod_t & right);
+            
+            //serialize header and object,return how many bytes is writed
+            virtual int32_t do_write(xstream_t & stream) const;
+            virtual int32_t do_read(xstream_t & stream);
             
         private:
             void            close();
-            int32_t         do_write(xstream_t & stream);     //serialize header and object,return how many bytes is writed
-            int32_t         do_read(xstream_t & stream);      //serialize header and object,return how many bytes is readed
-        private:
-            //m_method_uri might be like [account_address].[blockheight].[property_name]
+            void            reset_result();//note:use carefully
+            
+            //those are just work at runtime,NOT included into serialization
+            int64_t               m_cookie;
+            
+        private://bellow are included into serialization
+            //m_caller_uri might be like [account_address] or [account_address]/[callback]
+            //m_method_uri might be like [account_address]/[blockheight]/[property_name]
+            std::string           m_caller_uri;   //who fired this method
             std::string           m_method_uri;   //uniform execution resource identify
             std::string           m_method_name;  //method name of target
             std::deque<xvalue_t>  m_method_params;//method'parameters
-            int8_t                m_method_id;    //predefined method id
-            uint8_t               m_op_code;      //[1bit:long-call with target][1bit:call_by_name][highest 2bit:count of pararms][low 4bit:type]
+            xvalue_t*             m_method_result;//carry result if need.note:NOT included into serialization
+            int8_t                m_method_id;    //predefined method id,0 is invalid
+            uint8_t               m_op_code;      //[1bit:has calleruri][1bit:has targeturi][1bit:has  method_name][highest 2bit:pararms num][low 3bit:method-type]
         };
     
-    }
-}
+    };
+};

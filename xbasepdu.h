@@ -315,4 +315,4 @@ namespace top
             uint32_t    _peer_cookie_hash;   //secret cookie hash,it is 0 for TCP
         };
     }
-}
+};

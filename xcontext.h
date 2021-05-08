@@ -307,5 +307,5 @@ namespace top
                 xcontext_t::register_xobject2(_context,(enum_xobject_type)_type,lambda_new_func);
             }
         };
-    }//end of namespace base
-} //end of namespace top
+    };//end of namespace base
+}; //end of namespace top

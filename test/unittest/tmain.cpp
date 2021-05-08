@@ -20,7 +20,6 @@ int test_xudp(bool is_stress_test);
 int test_timer(bool is_stress_test);
 int test_utility(bool is_stress_test);
 int test_xpbft(bool is_stress_test);
-//int test_xstate(bool is_stress_test);
 
 extern "C" int my_create_log_file_cb(const char * log_file_name)
 {

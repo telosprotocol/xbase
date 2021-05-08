@@ -144,5 +144,5 @@ namespace top
         private:
             void*               m_packets_queue;
         };
-    } //end of namespace base
-} //end of namespace top
+    }; //end of namespace base
+}; //end of namespace top

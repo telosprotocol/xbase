@@ -4,7 +4,7 @@
 #include "xbase/xcontext.h"
 #include "xconsensus/xconsensus_face.h"
 #include "xdata/xconsensus_biz_type.h"
-#include "xbase/xns_macro.h"
+#include "xbasic/xns_macro.h"
 
 NS_BEG3(top, consensus, performance)
 
