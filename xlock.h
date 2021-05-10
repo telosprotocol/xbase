@@ -86,7 +86,10 @@ namespace top
             ~xauto_try_lock_t()
             {
                 if(m_bacquired_lock)
+                {
                     m_ptr_raw_locker->unlock();
+                    m_bacquired_lock = false;
+                }
             }
         public:
             bool  is_locked() const {return m_bacquired_lock;}

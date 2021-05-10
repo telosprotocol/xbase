@@ -1,5 +1,5 @@
 ﻿#include "xvnet_worker.h"
-
+#include "xbase/xns_macro.h"
 NS_BEG3(top, consensus, performance)
 
 std::shared_ptr<vnetwork::xvnetwork_driver_face_t>  xvnetwork_mgr::get_vnetwork_driver()
