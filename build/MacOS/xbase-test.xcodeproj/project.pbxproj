@@ -19,23 +19,6 @@
 		99DF1AD621C8AD6600AE5646 /* xchaincore.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 99DF1AD421C8AD6600AE5646 /* xchaincore.cpp */; };
 /* End PBXBuildFile section */
 
-/* Begin PBXContainerItemProxy section */
-		997510442613DE3400046C6B /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 997510402613DE3400046C6B /* xblockstore.xcodeproj */;
-			proxyType = 2;
-			remoteGlobalIDString = 993A31C224314CE600C2E429;
-			remoteInfo = xblockstore;
-		};
-		9975104A2613DE3800046C6B /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 997510462613DE3800046C6B /* xblockstore.xcodeproj */;
-			proxyType = 2;
-			remoteGlobalIDString = 993A31C224314CE600C2E429;
-			remoteInfo = xblockstore;
-		};
-/* End PBXContainerItemProxy section */
-
 /* Begin PBXCopyFilesBuildPhase section */
 		994F8F5821AFCE9700EFA18F /* CopyFiles */ = {
 			isa = PBXCopyFilesBuildPhase;
@@ -59,8 +42,6 @@
 		994F8F6821AFD09800EFA18F /* tmain.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = tmain.cpp; path = ../../test/unittest/tmain.cpp; sourceTree = "<group>"; };
 		994F8F6B21AFD10C00EFA18F /* libxbase.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libxbase.a; path = "../../../../../../Library/Developer/Xcode/DerivedData/xbase-aebsqocrgepwutffszoltagtwezg/Build/Products/Debug/libxbase.a"; sourceTree = "<group>"; };
 		997179A4260A70CC0037C9B3 /* libxwasmvm.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libxwasmvm.a; path = ../../libs/MacOS/debug/libxwasmvm.a; sourceTree = "<group>"; };
-		997510402613DE3400046C6B /* xblockstore.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = xblockstore.xcodeproj; path = ../../../xchainv0/src/xtopcom/xblockstore/build/MacOS/xblockstore.xcodeproj; sourceTree = "<group>"; };
-		997510462613DE3800046C6B /* xblockstore.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = xblockstore.xcodeproj; path = ../../../xchainv0/src/xtopcom/xblockstore/build/MacOS/xblockstore.xcodeproj; sourceTree = "<group>"; };
 		99DF1ACC21C750C400AE5646 /* tcp_sample.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = tcp_sample.cpp; path = ../../test/sample/tcp_sample.cpp; sourceTree = "<group>"; };
 		99DF1ACE21C7656C00AE5646 /* udp_sample.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = udp_sample.cpp; path = ../../test/sample/udp_sample.cpp; sourceTree = "<group>"; };
 		99DF1AD021C765F600AE5646 /* xdata_sample.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = xdata_sample.cpp; path = ../../test/sample/xdata_sample.cpp; sourceTree = "<group>"; };
@@ -84,8 +65,6 @@
 		994F8F5121AFCE9700EFA18F = {
 			isa = PBXGroup;
 			children = (
-				997510402613DE3400046C6B /* xblockstore.xcodeproj */,
-				997510462613DE3800046C6B /* xblockstore.xcodeproj */,
 				991E202D225DD321006FB666 /* xutl_sample.cpp */,
 				994AE1FA220521420045A160 /* xtimer_sample.cpp */,
 				99DF1AD221C7664400AE5646 /* xcall_sample.cpp */,
@@ -119,22 +98,6 @@
 				994F8F6B21AFD10C00EFA18F /* libxbase.a */,
 			);
 			name = Frameworks;
-			sourceTree = "<group>";
-		};
-		997510412613DE3400046C6B /* Products */ = {
-			isa = PBXGroup;
-			children = (
-				997510452613DE3400046C6B /* libxblockstore.a */,
-			);
-			name = Products;
-			sourceTree = "<group>";
-		};
-		997510472613DE3800046C6B /* Products */ = {
-			isa = PBXGroup;
-			children = (
-				9975104B2613DE3800046C6B /* libxblockstore.a */,
-			);
-			name = Products;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -183,39 +146,12 @@
 			mainGroup = 994F8F5121AFCE9700EFA18F;
 			productRefGroup = 994F8F5B21AFCE9700EFA18F /* Products */;
 			projectDirPath = "";
-			projectReferences = (
-				{
-					ProductGroup = 997510412613DE3400046C6B /* Products */;
-					ProjectRef = 997510402613DE3400046C6B /* xblockstore.xcodeproj */;
-				},
-				{
-					ProductGroup = 997510472613DE3800046C6B /* Products */;
-					ProjectRef = 997510462613DE3800046C6B /* xblockstore.xcodeproj */;
-				},
-			);
 			projectRoot = "";
 			targets = (
 				994F8F5921AFCE9700EFA18F /* xbase-test */,
 			);
 		};
 /* End PBXProject section */
-
-/* Begin PBXReferenceProxy section */
-		997510452613DE3400046C6B /* libxblockstore.a */ = {
-			isa = PBXReferenceProxy;
-			fileType = archive.ar;
-			path = libxblockstore.a;
-			remoteRef = 997510442613DE3400046C6B /* PBXContainerItemProxy */;
-			sourceTree = BUILT_PRODUCTS_DIR;
-		};
-		9975104B2613DE3800046C6B /* libxblockstore.a */ = {
-			isa = PBXReferenceProxy;
-			fileType = archive.ar;
-			path = libxblockstore.a;
-			remoteRef = 9975104A2613DE3800046C6B /* PBXContainerItemProxy */;
-			sourceTree = BUILT_PRODUCTS_DIR;
-		};
-/* End PBXReferenceProxy section */
 
 /* Begin PBXSourcesBuildPhase section */
 		994F8F5621AFCE9700EFA18F /* Sources */ = {
