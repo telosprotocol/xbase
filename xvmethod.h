@@ -441,9 +441,12 @@ namespace top
             virtual std::string dump() const;  //just for debug purpose
             
             //serialize header and object,return how many bytes is writed
-            int32_t         serialize_to(xstream_t & stream) const;
+            int32_t         serialize_to(xstream_t & stream)   const;
+            int32_t         serialize_to(std::string & bin_data) const;
             //serialize header and object,return how many bytes is readed
             int32_t         serialize_from(xstream_t & stream);
+            int32_t         serialize_from(const std::string & bin_data);
+            
         protected:
             void            set_caller_uri(const std::string & caller_uri);
             xvmethod_t & operator = (const xvmethod_t & right);

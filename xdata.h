@@ -866,6 +866,13 @@ namespace top
                 m_std_map[key] = value;
                 m_modified_count = m_modified_count + 1; //atom is not need as it always increase
             }
+            virtual   void  merge(const xmap_t & obj)
+            {
+                for(auto it = obj.m_std_map.begin(); it != obj.m_std_map.end(); ++it)
+                {
+                    m_std_map[it->first] = it->second;
+                }
+            }
             virtual   bool  remove(const std::string & key)//return true if remove successful
             {
                 std_map::iterator it = m_std_map.find(key);
