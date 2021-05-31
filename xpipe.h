@@ -1521,5 +1521,5 @@ namespace top
             std::atomic<int64_t>   m_total_pipeout_objects;
         };
     } //end of namespace of base
-}; //end of namespace of top
+} //end of namespace top
 

@@ -121,8 +121,8 @@ namespace top
             bool        sync;
         };
     
-    }//end of namespace of mbus
-}
+    } //end of namespace of mbus
+} //end of namespace of top
 
 
  
