@@ -101,5 +101,5 @@ namespace top
             int32_t       m_target_thread_id;
         };
 
-    } //end of namespace base
-} //end of namespace top
+    }; //end of namespace base
+} //end of namespace of base

@@ -320,7 +320,7 @@ namespace  top
             //TODO, add Merkle tree / Merkle Particia Tree here
         };
         
-    };//end of namespace of base
+    } //end of namespace of base
 };//end of namespace of top
 
 #endif /* xchaincore_hpp */
