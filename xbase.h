@@ -341,6 +341,8 @@ typedef enum tag_enum_xerror_code
     enum_xerror_code_no_resource         = -53,   //other resource running out
     enum_xerror_code_no_key              = -54,   //not found target key
     enum_xerror_code_no_value            = -55,   //not found target value
+    enum_xerror_code_no_gas              = -56,   //running out gas
+    enum_xerror_code_no_balance          = -57,   //dont have enough balance/volume/credit
     
     enum_xerror_code_not_implement       = -60,  //not implementation
     enum_xerror_code_not_open            = -61,  //object is not opened,similar as enum_error_code_not_avaiable
@@ -357,7 +359,6 @@ typedef enum tag_enum_xerror_code
     enum_xerror_code_invalid_param_type      = -71,  //type of data for parameter is wrong
     
     enum_xerror_code_over_credit_day_limit   = -80,  //purchased credit or free-credit from  gift/ad has  limit for consume per day
-    enum_xerror_code_no_balance              = -81,  //dont have enough balance/volume/credit
     enum_xerror_code_over_session_duration   = -82,  //reach session' duration limitation,usally it used for vpn/xtunnel
     enum_xerror_code_over_session_volume     = -83,  //reach session' volume/traffic limitation,usally it used for vpn/xtunnel
     enum_xerror_code_over_day_duration       = -84,  //reach day' duration limitation,usally it used for vpn/xtunnel
@@ -1223,4 +1224,4 @@ extern "C"
 //xbase version definition
 #define     __XBASE_MAIN_VERSION_CODE__         1       //main version,max 255
 #define     __XBASE_FEATURE_VERSION_CODE__      3       //new feature,max 255
-#define     __XBASE_MINOR_VERSION_CODE__        0       //bug fix,max 255
+#define     __XBASE_MINOR_VERSION_CODE__        1       //bug fix,max 255
