@@ -1,5 +1,5 @@
 ﻿#pragma once
-#include "xbasic/xns_macro.h"
+#include "xbase/xns_macro.h"
 #include "xcomponent_administration/xcomponent_managers/xnetwork_component_manager.h"
 #include "xdata/xchain_param.h"
 #include "xvnetwork/xvnetwork_driver_face.h"
