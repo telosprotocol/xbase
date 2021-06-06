@@ -60,9 +60,6 @@ OBJFILES=$(OBJDIR)/xlog.o  			\
 		$(OBJDIR)/xsecuutl.o  		\
 		$(OBJDIR)/xsysutl.o  		\
 		$(OBJDIR)/xxhash.o  		\
-		$(OBJDIR)/lz4hc.o  			\
-		$(OBJDIR)/lz4frame.o  		\
-		$(OBJDIR)/lz4.o  			\
 		$(OBJDIR)/xbasepdu.o  		\
 		$(OBJDIR)/xpacket.o  		\
 		$(OBJDIR)/xvevent.o  		\
@@ -135,15 +132,6 @@ $(OBJDIR)/xsysutl.o: ../../src/xsysutl.cpp
 	
 $(OBJDIR)/xxhash.o: ../../src/xxhash.c
 	$(CC) $(OPTIONS) $(CFLAGS) $(INCLUDES) -o $(OBJDIR)/xxhash.o $?
-	
-$(OBJDIR)/lz4hc.o: ../../src/lz4hc.c
-	$(CC) $(OPTIONS) $(CFLAGS) $(INCLUDES) -o $(OBJDIR)/lz4hc.o $?
-	
-$(OBJDIR)/lz4frame.o: ../../src/lz4frame.c
-	$(CC) $(OPTIONS) $(CFLAGS) $(INCLUDES) -o $(OBJDIR)/lz4frame.o $?
-	
-$(OBJDIR)/lz4.o: ../../src/lz4.c
-	$(CC) $(OPTIONS) $(CFLAGS) $(INCLUDES) -o $(OBJDIR)/lz4.o $?
 	
 $(OBJDIR)/xbasepdu.o: ../../src/xbasepdu.cpp
 	$(CC) $(OPTIONS) $(CFLAGS) $(INCLUDES) -o $(OBJDIR)/xbasepdu.o $?

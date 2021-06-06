@@ -154,6 +154,7 @@ namespace top
             int32_t     serialize_to(xstream_t & stream) const;        //serialize header and object,return how many bytes is writed
             int32_t     serialize_from(xstream_t & stream);      //serialize header and object,return how many bytes is readed
             
+            const std::string dump() const;
         private:
             void         close();
             void         copy_from(const xvalue_t & right);
@@ -363,7 +364,7 @@ namespace top
         public:
             int32_t     serialize_to(xstream_t & stream) const;        //serialize header and object,return how many bytes is writed
             int32_t     serialize_from(xstream_t & stream);      //serialize header and object,return how many bytes is readed
-            
+
         private:
             //update value,not safe for multiple_thrad
             bool         copy_from_value(const xvalue_t & new_val);

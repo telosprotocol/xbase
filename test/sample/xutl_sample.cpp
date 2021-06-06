@@ -416,6 +416,113 @@ int test_utility(bool is_stress_test)
         }
     }
     
+    //compress and decompress for small piece data
+    printf("-----------[compress_to_stream/decompresss] start----------------------\n");
+    {
+        for (uint32_t i = 0; i < 100000; i++)
+        {
+            std::string org_bin;
+            std::string output_bin;
+            std::string final_bin;
+            {
+                top::base::xautostream_t<1024> _raw_stream(top::base::xcontext_t::instance());
+                _raw_stream << "11111";
+                _raw_stream << std::to_string(i);
+                _raw_stream << top::base::xtime_utl::get_fast_random();
+                _raw_stream << top::base::xtime_utl::get_fast_random();
+                _raw_stream << top::base::xtime_utl::get_fast_random();
+                
+                org_bin.assign((const char*)_raw_stream.data(),_raw_stream.size());
+                top::base::xstream_t::compress_to_string(org_bin,output_bin);
+            }
+            {
+                const int decompress_result = top::base::xstream_t::decompress_from_string(output_bin,final_bin);
+                xassert(decompress_result > 0);
+                xassert(final_bin == org_bin);
+                if(final_bin != org_bin)
+                    return -9;
+            }
+        }
+    }
+    printf("-----------[compress_to_stream/decompresss] finish----------------------\n");
+    
+    //compress and decompress for random piece data
+    printf("-----------[compress_to_string/decompresss] start----------------------\n");
+    {
+        for (uint32_t i = 0; i < 100000; i++)
+        {
+            std::string org_bin;
+            std::string output_bin;
+            std::string final_bin;
+            std::string rand_str;
+            int32_t rand_i1;
+            uint32_t rand_i2;
+            uint64_t rand_i3;
+            {
+                //stream and compress
+                {
+                    top::base::xautostream_t<1024> _raw_stream(top::base::xcontext_t::instance());
+                    
+                    rand_i1 = top::base::xtime_utl::get_fast_random();
+                    if( (rand_i1 > 0) && ((i % 2) == 0) )
+                        rand_i1 = -rand_i1;
+                    
+                    _raw_stream.write_compact_var(rand_i1);
+                    rand_i2 = top::base::xtime_utl::get_fast_randomu();
+                    _raw_stream.write_compact_var(rand_i2);
+                    rand_i3 = top::base::xtime_utl::get_fast_random64();
+                    _raw_stream.write_compact_var(rand_i3);
+                    
+                    const uint16_t rand_size = (uint16_t)top::base::xtime_utl::get_fast_random();
+                    rand_str.resize(rand_size);
+                    for(int i = 0; i < rand_size; ++i)
+                    {
+                        rand_str[i] = (char)(i*rand_i2);
+                    }
+                    _raw_stream.write_compact_var(rand_str);
+                    org_bin.assign((const char*)_raw_stream.data(),_raw_stream.size());
+                    top::base::xstream_t::compress_to_string(org_bin,output_bin);
+                }
+                {
+                    const int decompress_result = top::base::xstream_t::decompress_from_string(output_bin,final_bin);
+                    xassert(decompress_result > 0);
+                    xassert(final_bin == org_bin);
+                    if(final_bin != org_bin)
+                        return -10;
+                }
+                
+                {
+                    int32_t  verify_rand_i1;
+                    uint32_t verify_rand_i2;
+                    uint64_t verify_rand_i3;
+                    std::string verify_rand_str;
+                    top::base::xstream_t _stream(top::base::xcontext_t::instance(),(uint8_t*)final_bin.data(),(uint32_t)final_bin.size());
+                    _stream.read_compact_var(verify_rand_i1);
+                    _stream.read_compact_var(verify_rand_i2);
+                    _stream.read_compact_var(verify_rand_i3);
+                    _stream.read_compact_var(verify_rand_str);
+
+                    xassert(verify_rand_i1 == rand_i1);
+                    if(verify_rand_i1 != rand_i1)
+                        return -11;
+                    
+                    xassert(verify_rand_i2 == rand_i2);
+                    if(verify_rand_i2 != rand_i2)
+                        return -11;
+                    
+                    xassert(verify_rand_i3 == rand_i3);
+                    if(verify_rand_i3 != rand_i3)
+                        return -11;
+                    
+                    xassert(verify_rand_str == rand_str);
+                    if(verify_rand_str != rand_str)
+                        return -11;
+                }
+            }
+        }
+    }
+    printf("-----------[compress_to_string/decompresss] finish----------------------\n");
+    
     //test obfucation
     {
         const int64_t start_time = xtime_utl::time_now_ms();
