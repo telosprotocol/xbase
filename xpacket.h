@@ -1063,5 +1063,5 @@ namespace top
             uint8_t           m_aes_iv[16];  //128bit AES IV  for CTR Mode
             xcontext_t &      m_context;
         };
-    } //end of namespace of base
-} //end of namespace of top
+    };//end of namespace of base
+};//end of namespace of top

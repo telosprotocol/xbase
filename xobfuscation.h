@@ -27,4 +27,4 @@ namespace top
             static   int      decode(xmemh_t & in_output,uint32_t init_iv); //directly remove random head at front of in_output and unobfuscate
         };
     }
-}
+};

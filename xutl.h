@@ -165,7 +165,8 @@ namespace top
             static void          toupper_string(std::string & in_out_string);//convert every char to upper
             static void          tolower_string(std::string & in_out_string);//convert every char to lower
             
-            static std::string   to_hex(const std::string & input);//convert string to hex code.e.g "123" -> "7B"
+            static std::string   to_hex(const std::string & raw_input);//convert string to hex code.e.g "123" -> "7B"
+            static std::string   from_hex(const std::string & hex_input);//convert hex to raw string
             
             static const std::string   uint642hex(uint64_t uint64value);       //unint64 to string of hex format
             static const uint64_t      hex2uint64(const std::string & hex_str);//convert hex string to int64 integer
@@ -380,5 +381,5 @@ namespace top
             int32_t     m_tokens_count;     //how many tokens current own,could be negative as borrow
             int64_t     m_last_filltime_ms; //the last time fill bucket
         };
-    } //end of namespace base
-} //end of namespace top
+    }//end of namespace base
+}//end of namespace top

@@ -182,7 +182,7 @@ int main(int argc,char* argv[])
     //top::base::xcontext_t::instance().set_debug_modes(top::base::xcontext_t::enum_debug_mode_memory_check);
     top::base::xcontext_t::instance().set_debug_plugin(dbg_plugin);
     
-#ifdef __TEST_ALL_CASE__    
+#ifdef __TEST_ALL_CASE__
     test_result = test_utility(is_stress_test);
     if(test_result != 0)
     {
