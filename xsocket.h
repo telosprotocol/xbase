@@ -766,5 +766,5 @@ namespace  top
             std::recursive_mutex        m_mutex;//used for client
         };
 
-    } //end of namespace of base
+    }//end of namespace of base
 } //end of namespace of top

@@ -154,6 +154,10 @@ namespace top
             int32_t     serialize_to(xstream_t & stream) const;        //serialize header and object,return how many bytes is writed
             int32_t     serialize_from(xstream_t & stream);      //serialize header and object,return how many bytes is readed
             
+            //note:operator == take resource to compare,usally just use for debug purpose
+            bool        operator == (const xvalue_t & other) const; 
+            const std::string dump() const; //dump just for debug purpose
+            
         private:
             void         close();
             void         copy_from(const xvalue_t & right);
@@ -358,12 +362,12 @@ namespace top
             //just tracking at runtime(at memory)
             inline  bool   is_readonly() const {return check_obj_flag(enum_xvalue_flag_readonly);}
             inline  bool   is_shared()   const {return check_obj_flag(enum_xvalue_flag_shared);}
-      
+            virtual std::string dump()   const override;  //just for debug purpose
             virtual void*  query_interface(const int32_t _enum_xobject_type_) override;
         public:
             int32_t     serialize_to(xstream_t & stream) const;        //serialize header and object,return how many bytes is writed
             int32_t     serialize_from(xstream_t & stream);      //serialize header and object,return how many bytes is readed
-            
+
         private:
             //update value,not safe for multiple_thrad
             bool         copy_from_value(const xvalue_t & new_val);
@@ -439,6 +443,8 @@ namespace top
             //caller respond to cast (void*) to related  interface ptr
             virtual void*       query_minterface(const int32_t _enum_xobject_type_) const {return (xvmethod_t*)this;}
             virtual std::string dump() const;  //just for debug purpose
+            //note:operator == take resource to compare,usally just use for debug purpose
+            bool    operator == (const xvmethod_t & other) const;
             
             //serialize header and object,return how many bytes is writed
             int32_t         serialize_to(xstream_t & stream)   const;

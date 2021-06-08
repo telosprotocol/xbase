@@ -36,7 +36,8 @@ namespace top
             static bool          register_xobject2(xcontext_t & _context,enum_xobject_type type,xnew_function_t creator_t);
             static xobject_t*    create_xobject(enum_xobject_type type);
             static uint32_t      get_version_code(); //return bin version code for xbase
-
+            static const std::string get_xbase_info();//return version code and date/time of build
+            
             enum enum_global_object_key
             {
                 enum_global_object_key_invalid                      =  0,  //reserved for internal
@@ -307,5 +308,5 @@ namespace top
                 xcontext_t::register_xobject2(_context,(enum_xobject_type)_type,lambda_new_func);
             }
         };
-    } //end of namespace base
+    }//end of namespace base
 } //end of namespace top

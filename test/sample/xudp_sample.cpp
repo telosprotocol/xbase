@@ -348,7 +348,7 @@ int test_xudp(bool is_stress_test)
             xpacket_t test_packet(top::base::xcontext_t::instance()); //assume now it is connected
             test_packet.get_body().push_back((uint8_t*)test_pre_send_raw_data.data(), (int)test_pre_send_raw_data.size());
             test_packet.set_process_flag(enum_xpacket_process_flag_compress); //ask compress
-            //test_packet.set_process_flag(enum_xpacket_process_flag_encrypt);  //ask compress
+            test_packet.set_process_flag(enum_xpacket_process_flag_encrypt);  //ask compress
             test_packet.set_process_flag(enum_xpacket_process_flag_checksum); //ask checksum
             test_packet.set_packet_flag(enum_xpacket_deliver_ack_flag);
             test_packet.set_MTUL(2);  //set MTU as 1 * 256
@@ -372,7 +372,7 @@ int test_xudp(bool is_stress_test)
             test_packet.get_header().push_front((uint8_t*)test_pre_send_raw_data.data(),header_size);
             test_packet.get_body().push_back((uint8_t*)test_pre_send_raw_data.data() + header_size, (int)test_pre_send_raw_data.size() - header_size);
             test_packet.set_process_flag(enum_xpacket_process_flag_compress); //ask compress
-            //test_packet.set_process_flag(enum_xpacket_process_flag_encrypt);  //ask compress
+            test_packet.set_process_flag(enum_xpacket_process_flag_encrypt);  //ask compress
             test_packet.set_process_flag(enum_xpacket_process_flag_checksum); //ask checksum
             test_packet.set_packet_flag(enum_xpacket_deliver_ack_flag);
             test_packet.set_MTUL(2);  //set MTU as 1 * 256
