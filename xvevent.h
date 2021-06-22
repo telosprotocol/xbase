@@ -76,6 +76,7 @@ namespace top
             uint8_t             m_event_paths;  //refer enum_xevent_route_path
         protected:
             int16_t             m_event_priority;//priority level for event
+            int16_t             m_event_reserved;//alignment 32bytes and reserved for future as well
             int32_t             m_error_code;  //default it is 0 = successful
             std::string         m_result_data; //default it is empty
         };
