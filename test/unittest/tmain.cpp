@@ -234,7 +234,7 @@ int main(int argc,char* argv[])
         return 0;
     }
 #else
-    test_result = test_timer(is_stress_test);
+    test_result = test_xcall(true);
     if(test_result != 0)
     {
         printf("test_timer found error,exit \n");
