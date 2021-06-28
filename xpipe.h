@@ -18,8 +18,8 @@
     #define __CHECK_XQUEUE_EMPTY__
 #else 
     //TODO,disable below control under DEBUG mode after test completed
-    #define __VERIFY_XQUEUE_INDEX__
-    #define __CHECK_XQUEUE_EMPTY__
+    //#define __VERIFY_XQUEUE_INDEX__
+    //#define __CHECK_XQUEUE_EMPTY__
 #endif
 
 namespace top
@@ -621,6 +621,7 @@ namespace top
                 }
                 ~block_t(){};
             public:
+                /*
                 void* operator    new(size_t size)
                 {
                     int actual_size = (int32_t)size;
@@ -631,6 +632,7 @@ namespace top
                     //pass negative size to trigger re-calculate actually size from xmalloc
                     return xfree(xcontext_t::instance(),p,-(int32_t)sizeof(block_t));
                 }
+                */
             public:
                 std::atomic<block_t *>  next;
                 int32_t                 alloc_size;
