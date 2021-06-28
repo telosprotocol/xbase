@@ -46,9 +46,9 @@ namespace top
                 std::lock_guard<std::mutex> lock(m_mutex);
                 auto it = m_item_map.find(k);
                 if (it != m_item_map.end()) {
-                    delete_value(it->second->second);
                     m_item_list.erase(it->second);
                     m_item_map.erase(it);
+                    delete_value(it->second->second);
                 }
                 m_item_list.push_front(std::make_pair(k, v));
                 m_item_map.insert(std::make_pair(k, m_item_list.begin()));

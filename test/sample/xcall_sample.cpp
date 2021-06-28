@@ -110,7 +110,7 @@ int test_xcall(bool is_stress_test)
         test_raw_data.push_back((uint8_t)(i * random_seed));
     }
     
-    const int max_test_cound = is_stress_test ? 100000 : 10;
+    const int max_test_cound = is_stress_test ? 10000 : 10;
     
     top::base::xcontext_t & context = top::base::xcontext_t::instance();
     //test atomic performance
@@ -154,34 +154,43 @@ int test_xcall(bool is_stress_test)
         uint64_t begin_time_ms = 0;
         int   total_duration = 0;
         
-        begin_time_ms = top::base::xtime_utl::time_now_ms();
-        void * mem_ptr = NULL;
-        for(int i = 0; i < max_test_cound; ++i)
-        {
-            size_t size = top::base::xtime_utl::get_fast_random(512);
-            mem_ptr = malloc(size);
-            if(mem_ptr != NULL)
-            {
-                memcpy((void*)test_raw_data.data(),mem_ptr,std::min(size,test_raw_data.size()));//force using memory of mem_ptr
-                free(mem_ptr);
-            }
-        }
-        total_duration = (int)(top::base::xtime_utl::time_now_ms() - begin_time_ms) + 1;
-        printf("finish execute malloc, round(%d) after %d ms with speed(%d /ms) \n",max_test_cound,(int)total_duration,(int)(max_test_cound / total_duration));
         
-        begin_time_ms = top::base::xtime_utl::time_now_ms();
-        for(int i = 0; i < max_test_cound; ++i)
+        void * mem_ptr = NULL;
+        if(0) //test libc
         {
-            int32_t size = top::base::xtime_utl::get_fast_random(512);
-            mem_ptr = top::base::xmalloc(context,size);
-            if(mem_ptr != NULL)
+            begin_time_ms = top::base::xtime_utl::time_now_ms();
+            for(int i = 0; i < max_test_cound; ++i)
             {
-                memcpy((void*)test_raw_data.data(),mem_ptr,std::min((size_t)size,test_raw_data.size()));//force using memory of mem_ptr
-                top::base::xfree(context,mem_ptr,size);
+                size_t size = top::base::xtime_utl::get_fast_random(512);
+                mem_ptr = malloc(size);
+                if(mem_ptr != NULL)
+                {
+                    memcpy((void*)test_raw_data.data(),mem_ptr,std::min(size,test_raw_data.size()));//force using memory of mem_ptr
+                    free(mem_ptr);
+                }
             }
+            total_duration = (int)(top::base::xtime_utl::time_now_ms() - begin_time_ms) + 1;
+            printf("finish execute malloc, round(%d) after %d ms with speed(%d /ms) \n",max_test_cound,(int)total_duration,(int)(max_test_cound / total_duration));
         }
-        total_duration = (int)(top::base::xtime_utl::time_now_ms() - begin_time_ms) + 1;
-        printf("finish execute xmalloc,round(%d) after %d ms with speed(%d /ms) \n",max_test_cound,(int)total_duration,(int)(max_test_cound / total_duration));
+
+        if(1) //test xbase
+        {
+            begin_time_ms = top::base::xtime_utl::time_now_ms();
+            for(int i = 0; i < max_test_cound; ++i)
+            {
+                int32_t size = top::base::xtime_utl::get_fast_random(512);
+                mem_ptr = top::base::xmalloc(context,size);
+                if(mem_ptr != NULL)
+                {
+                    memcpy((void*)test_raw_data.data(),mem_ptr,std::min((size_t)size,test_raw_data.size()));//force using memory of mem_ptr
+                    //top::base::xfree(context,mem_ptr,size);
+                    free(mem_ptr);
+                }
+            }
+            total_duration = (int)(top::base::xtime_utl::time_now_ms() - begin_time_ms) + 1;
+            printf("finish execute xmalloc,round(%d) after %d ms with speed(%d /ms) \n",max_test_cound,(int)total_duration,(int)(max_test_cound / total_duration));
+        }
+
     }
 
     //test lambda call
@@ -197,7 +206,7 @@ int test_xcall(bool is_stress_test)
     
     //test xcall
     int latest_command_id = 0;
-//    if(max_test_cound <= 10)
+    //if(max_test_cound <= 10)
     {
         const uint64_t begin_timems = top::base::xtime_utl::time_now_ms();
         auto lambda_test = [&latest_command_id,&begin_timems,&max_test_cound](top::base::xcall_t & call,const int32_t thread_id, const uint64_t time_now_ms)->bool
@@ -231,7 +240,10 @@ int test_xcall(bool is_stress_test)
             if(i % 2 == 0)
                 t1->send_call(test_func);
             else
-                t1->send_call(test_func);
+                t2->send_call(test_func);
+            
+            if( (i % 100000) == 0)
+                sleep(1);
         }
         
         //test queue directly

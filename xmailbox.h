@@ -24,12 +24,12 @@ namespace top
             enum
             {
                 #if defined(XCPU_ARCH_X86) || defined(__MAC_PLATFORM__) || defined(__LINUX_PLATFORM__)
-                enum_mailbox_lowwater          = 512,   //low water for left unprocessed items
+                enum_mailbox_lowwater          = 1024,  //low water for left unprocessed items
                 enum_mailbox_highwater         = 4096,  //high water for left unprocessed items
                 
-                enum_mailbox_min_batch_read    = 512,   //default value to read out events at one time
-                enum_mailbox_avg_batch_read    = 2048,  //default value to read out events at one time
-                enum_mailbox_max_batch_read    = 4096,  //default value to read out events at one time
+                enum_mailbox_min_batch_read    = 1024,  //default value to read out events at one time
+                enum_mailbox_avg_batch_read    = 4096,  //default value to read out events at one time
+                enum_mailbox_max_batch_read    = 8192,  //default value to read out events at one time
                 
                 #else //mobile
                 enum_mailbox_lowwater          = 128,   //low water for left unprocessed items
