@@ -424,7 +424,7 @@ enum enum_vledger_const
 {
     enum_vchain_has_buckets_count       = 16,     //4bit: max 16 buckets(aka zones) of each ledger
     enum_vchain_has_zones_count         = enum_vchain_has_buckets_count,
-    enum_vbucket_has_books_count         = 32,    //7bit: each bucket has max 128 books
+    enum_vbucket_has_books_count         = 8,    //7bit: each bucket has max 128 books
     enum_vbucket_has_books_count_mask    = enum_vbucket_has_books_count - 1,
     enum_vbook_has_tables_count          = 8,      //3bit: each book has max 8 tables
     enum_vbucket_has_tables_count        = enum_vbucket_has_books_count * enum_vbook_has_tables_count,   //total 256 = 32 * 8 under one bucket/zone
