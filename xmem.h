@@ -36,7 +36,7 @@ namespace top
         int32_t      xsizeof(xcontext_t& _context,int32_t input_Size);
  
         //query the cached memory for current thread
-        int32_t      xdbg_get_cached_memory(xcontext_t& _context);
+        int64_t      xdbg_get_cached_memory(xcontext_t& _context);
         //clear the cached meory at current thread,return the total cached size
         int32_t      xdbg_clear_cached_memory(xcontext_t& _context);
         /////////////////////////////////////thread-memory-pool support//////////////////////////////////////////////////

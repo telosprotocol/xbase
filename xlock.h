@@ -12,6 +12,37 @@ namespace top
 {
     namespace base
     {
+        struct xspinlock_t
+        {
+            std::atomic<bool> lock_ = {0};
+            
+            void lock() noexcept {
+                for (;;) {
+                    // Optimistically assume the lock is free on the first try
+                    if (!lock_.exchange(true, std::memory_order_acquire)) {
+                        return;
+                    }
+                    // Wait for lock to be released without generating cache misses
+                    while (lock_.load(std::memory_order_relaxed)) {
+                        // Issue X86 PAUSE or ARM YIELD instruction to reduce contention between
+                        // hyper-threads
+                        __builtin_ia32_pause();
+                    }
+                }
+            }
+            
+            bool try_lock() noexcept {
+                // First do a relaxed load to check if lock is free in order to prevent
+                // unnecessary cache misses if someone does while(!try_lock())
+                return !lock_.load(std::memory_order_relaxed) &&
+                !lock_.exchange(true, std::memory_order_acquire);
+            }
+            
+            void unlock() noexcept {
+                lock_.store(false, std::memory_order_release);
+            }
+        };
+    
         //xatomlock_t is very light lock that dont have sleep to block thread,so the caller must handle the case when is_acquired return false
         //Note: xatomlock_t dont support recursive reenter to same locked thread
         class xatomlock_t
@@ -33,33 +64,27 @@ namespace top
         };
         
         template<typename T>
-        class xauto_spin_lock_t
+        class xauto_lock
         {
         public:
-            xauto_spin_lock_t(T & locker)
-            :m_ptr_raw_locker(&locker)
+            xauto_lock(T & locker)
+            :m_raw_locker(&locker)
             {
-                m_bacquired_lock = false;
-                while(false == m_bacquired_lock)
-                {
-                    if(m_ptr_raw_locker->try_lock())
-                        m_bacquired_lock = true; //thread-safe to assign
-                }
+                m_raw_locker->lock();
             }
-            ~xauto_spin_lock_t()
+            ~xauto_lock()
             {
-                if(m_bacquired_lock)
-                    m_ptr_raw_locker->unlock();
+                m_raw_locker->unlock();
             }
         private:
-            xauto_spin_lock_t();
-            xauto_spin_lock_t(const xauto_spin_lock_t &);
-            xauto_spin_lock_t & operator = (const xauto_spin_lock_t &);
+            xauto_lock();
+            xauto_lock(xauto_lock &&);
+            xauto_lock(const xauto_lock &);
+            xauto_lock & operator = (const xauto_lock &);
         private:
-            T *   m_ptr_raw_locker;
-            bool  m_bacquired_lock;
+            T *   m_raw_locker;
         };
-        
+    
         template<typename T>
         class xauto_try_lock_t
         {
@@ -194,7 +219,7 @@ namespace top
             int32_t                 m_pending_write_count;
             uint8_t                 m_inwriting;
         };
-
+        
     }//end of namespace of base
 } //end of namespace top
 

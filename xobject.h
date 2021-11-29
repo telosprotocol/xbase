@@ -173,6 +173,7 @@ namespace top
         private:
             xobject_t(const xobject_t &);
             xobject_t & operator = (const xobject_t &);
+        
         public:
             inline int64_t    get_obj_id() const { return m_object_id;}
             inline int        get_obj_type() const { return m_object_type;}
@@ -202,12 +203,17 @@ namespace top
             //register a plugin with name of object, must finish all registeration at init stage of object for multiple-thread safe
             virtual bool        register_plugin(xobject_t * plugin_ptr,const int32_t plugin_slot = -1) {return false;}
      
-            virtual std::string dump() const;  //just for debug purpose
-       
-            #if defined(__USE_MEMORY_POOL__)
-            void* operator    new(size_t size);
-            void  operator    delete(void *p);
-            #endif
+        public: //debug purpose only
+            virtual std::string      dump() const;  //just for debug purpose
+            //override new/delete to tracking memory used
+            #ifdef _TRACKING_XOBJECT_MEMORY_
+            static void* operator    new(size_t size);
+            static void  operator    delete(void *p,size_t size);
+            #endif //end of _TRACKING_XOBJECT_MEMORY_
+            //query summary of memory xobject related
+            static const int64_t     get_total_object_mem_size();//total holding & used memory for xobject
+            static const int64_t     get_object_mem_info(std::map<int,int64_t> & type_mem_info);//map[object_type,total_mem]
+            static void              set_mem_tracking_mode(bool enable);
         public:
             inline void       set_obj_flag(const uint16_t flag)  {m_object_flags |= flag;}   //subclass need arrange those flag well
             inline void       reset_obj_flag(const uint16_t flag){m_object_flags &= (~flag);}//subclass need ensure flag just keep 1 bit
