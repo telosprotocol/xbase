@@ -154,7 +154,11 @@ namespace top
             
         public: //debug use only
             inline int32_t    get_debug_modes() const {return m_debug_modes;}
-            int32_t    set_debug_modes(const int32_t modes); //return last setting,refer enum_debug_mode
+            int32_t           set_debug_modes(const int32_t modes); //return last setting,refer enum_debug_mode
+            
+            const int64_t     get_total_object_mem_size();//total holding & used memory for xobject
+            const int64_t     get_object_mem_info(std::map<int,int64_t> & type_mem_info);//map[object_type,total_mem]
+            const int64_t     get_total_bytes_mem_size();//total holding & used memory for binary/bytes/stream
             
         protected:
             bool       on_object_create(xobject_t* target);

@@ -65,6 +65,30 @@ namespace top
             void                set_route_path(enum_xevent_route_path path);//mark what path of event will route
             void                remove_route_path(enum_xevent_route_path path); //remove it from set of paths
             
+            //logicly split full_event_type = [8bit:Event_Category][8bit:Event_KEY]
+            //Event_KEY = [4bit:code][4bit:key_type]
+            static const int    get_event_category(const int full_type) {return (full_type & 0xFF00);} //8bit
+            static const int    get_event_key(const int full_type)      {return (full_type & 0x00FF);} //8bit
+            const int           get_event_category() const {return ( m_event_type & 0xFF00);} //8bit
+            const int           get_event_key()      const {return ( m_event_type & 0x00FF);} //8bit
+            inline  void        set_event_flag(const uint8_t flag)//subclass need arrange those flag well
+            {
+                uint16_t copy_flags = m_event_flags;
+                copy_flags |= flag;
+                m_event_flags = copy_flags;
+            }
+            //subclass need ensure flag just keep 1 bit
+            inline  void        reset_event_flag(const uint8_t flag)
+            {
+                uint16_t copy_flags = m_event_flags;
+                copy_flags &= (~flag);
+                m_event_flags = copy_flags;
+            }
+            inline  bool        check_event_flag(const uint8_t flag) const
+            {
+                const uint16_t copy_flags = m_event_flags;
+                return ((copy_flags & flag) != 0);
+            }
         private:
             xvip2_t             m_from_xip;    //from address
             xvip2_t             m_to_xip;      //target address ,-1 means to broadcast everyone,and 0 means anyone may handle,

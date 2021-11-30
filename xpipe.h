@@ -141,13 +141,17 @@ namespace top
                     _ASSERT_ALIGNMENT_(total_writein_packets);
                 }
 #endif //end of __ASSERT_CHECK_ALIGNMENT__
+                
+                xwarn("xqueue_t,init,this=%lld",this);
             }
             
             ~xqueue_t ()
             {
                 const int32_t left = size();
                 if(left != 0)
-                    xwarn("xqueue_t,left elements=%d",left); //must be already readout all
+                    xwarn("xqueue_t,left elements=%d,this=%lld",left,this); //must be already readout all
+                else
+                    xwarn("xqueue_t,left,this=%lld",this);
                 
                 close(false);
             }
@@ -1092,11 +1096,13 @@ namespace top
                 _ASSERT_ALIGNMENT_(m_total_pipein_objects);
                 _ASSERT_ALIGNMENT_(m_total_pipeout_objects);
                 #endif
+                
+                xinfo("xpipex_t,init as this(%lld)",this);
             }
             
             ~xpipex_t()
             {
-                xinfo(" ~xpipex_t,left packets=%lld",m_total_pipein_objects - m_total_pipeout_objects);
+                xinfo("xpipex_t,left packets=%lld,this(%lld)",m_total_pipein_objects - m_total_pipeout_objects,this);
                 for(int i = 0; i < enum_max_xthread_count; ++i)
                 {
                     thread_queue_t * queue_ptr = m_queues[i];

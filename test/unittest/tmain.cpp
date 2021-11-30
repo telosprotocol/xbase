@@ -179,6 +179,7 @@ int main(int argc,char* argv[])
     //top::base::xcontext_t::enum_debug_mode_reference_check
     
     xtestdbgplugin_t * dbg_plugin = new xtestdbgplugin_t();
+ 
     //top::base::xcontext_t::instance().set_debug_modes(top::base::xcontext_t::enum_debug_mode_memory_check);
     top::base::xcontext_t::instance().set_debug_plugin(dbg_plugin);
     
@@ -189,6 +190,7 @@ int main(int argc,char* argv[])
         printf("test_utility found error,exit \n");
         return 0;
     }
+       
     test_result = test_xdata(is_stress_test);
     if(test_result != 0)
     {
@@ -250,6 +252,18 @@ int main(int argc,char* argv[])
 #endif //__TEST_ALL_CASE__
     
     printf("finish all test successful \n");
+    
+    std::map<int,int64_t> type_mem_info;
+    top::base::xcontext_t::instance().get_object_mem_info(type_mem_info);
+    const int64_t total_obj_mem = top::base::xcontext_t::instance().get_total_object_mem_size();
+    const int64_t total_cache_mem = top::base::xcontext_t::instance().get_total_bytes_mem_size();
+    
+    printf("holding cache mem=%lld vs total_obj_mem=%lld \n",total_cache_mem,total_obj_mem);
+    for(auto it : type_mem_info)
+    {
+        printf("object[type=%d]->mem_size(%lld) \n",it.first,it.second);
+    }
+    
     //const int total_time_to_wait = 20 * 1000; //20 second
     while(1)
     {

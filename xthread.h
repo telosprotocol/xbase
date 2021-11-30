@@ -118,6 +118,8 @@ namespace top
             virtual uint64_t    update_time_now() const = 0; //trigger refresh time to more accurately and return latest time now.carefully: it ask call under this thread
             int32_t             get_thread_id()   const {return m_thread_id;} //return real thread' id
             int                 get_thread_type() const {return m_thread_type;}
+            const std::string   get_thread_name() const {return m_thread_name;}
+            
         public:
             //multiple thread safe,return error code if fail, refer enum_xerror_code
             //Note: signal/post api execute the xcall_t at target thread through it's own mailbox or the thread'mailbox
@@ -154,6 +156,7 @@ namespace top
             xmailbox_t*         m_ptr_mailbox;       //each thread has own mailbox
             int32_t             m_thread_id;         //logic thread id instead of system'pthread
             int32_t             m_thread_type;       //different thread type
+            std::string         m_thread_name;       //
         };
 
         //worker thread that has own dedicated timer

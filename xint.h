@@ -51,6 +51,13 @@ namespace top
                 memcpy(raw_uint8, right.raw_uint8, sizeof(raw_uint8));
                 return *this;
             }
+            xuint_t & operator = (const std::string & right)
+            {
+                xassert(right.size() == enum_xint_size_bytes);
+                size_t _size = right.size() > enum_xint_size_bytes ? enum_xint_size_bytes : right.size();
+                memcpy(raw_uint8, (uint8_t*)right.c_str(), _size);
+                return *this;
+            }            
             ~xuint_t(){};
         public:
             inline uint8_t* data() const {return (uint8_t*)raw_uint8;}

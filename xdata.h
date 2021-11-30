@@ -296,6 +296,9 @@ namespace top
   
             //call carefully,open to reset flag of modified for subclass
             void                         reset_modified_count(); //use carefully
+        protected:
+            inline  void                 set_obj_version(const uint32_t version){m_obj_version = version;}
+            
         protected: //serialized from/to db
             uint32_t            m_obj_hash;         //32bit of xhash64(body_raw)
             
