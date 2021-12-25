@@ -183,7 +183,7 @@ namespace top
             virtual std::string get_obj_name() const {return std::string();} //each object may has own name as plugin
   
             virtual bool      is_close();
-            virtual bool      is_live(const uint64_t timenow_ms){return true;}//test whether has been idel status
+            virtual bool      is_live(const uint64_t timenow_ms, const uint64_t idle_timeout_ms){return true;}//test whether has been idel status
             virtual bool      close(bool force_async = true);
             
             //note: query_interface search vertically from subclass ->parent class ->root class of this object
