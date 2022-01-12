@@ -2112,18 +2112,24 @@ namespace top
                 :xbuffer_t(_context)
             {
                 m_init_external_mem_ptr = NULL;
+                m_cookie = 0;
+                m_reserved_32 = 0;
             }
             //it is unlimited to use memory if max_memory_size < 0
             xstream_t(xcontext_t & _context,const int32_t max_memory_size) //use enum_default_block_size
                 :xbuffer_t(_context,max_memory_size)
             {
                 m_init_external_mem_ptr = NULL;
+                m_cookie = 0;
+                m_reserved_32 = 0;
             }
             //init stream with iniit memory size and max size,and it is unlimited to use memory if max_memory_size < 0
             xstream_t(xcontext_t & _context,const int32_t init_memory_size,const int32_t max_memory_size)
                 :xbuffer_t(_context,init_memory_size,max_memory_size)
             {
                 m_init_external_mem_ptr = NULL;
+                m_cookie = 0;
+                m_reserved_32 = 0;
             }
             //init stream with external memory ,and caller is respond to clean/delete the passed in memory after finish using xstream_t
             //note:init_data_size present the size of valid data
@@ -2131,6 +2137,8 @@ namespace top
                 :xbuffer_t(_context,ptr_data,init_data_size,0,init_data_size)
             {
                 m_init_external_mem_ptr = ptr_data; //record the external memory pointer ptr,to avoid delete it
+                m_cookie = 0;
+                m_reserved_32 = 0;
             }
             
             //note:[front_offset,back_offset) present size of the valid data
@@ -2138,6 +2146,8 @@ namespace top
             :xbuffer_t(_context,ptr_data,init_data_size,front_offset,back_offset)
             {
                 m_init_external_mem_ptr = ptr_data; //record the external memory pointer ptr,to avoid delete it
+                m_cookie = 0;
+                m_reserved_32 = 0;
             }
             virtual ~xstream_t()
             {
@@ -2169,6 +2179,9 @@ namespace top
             static int32_t  decompress_from_stream(xstream_t & from_stream,const uint32_t compressed_data_size, xstream_t & to_stream);
             static int32_t  decompress_from_stream(xstream_t & from_stream,const uint32_t compressed_data_size, std::string & to_string);
             
+        public:
+            int32_t  get_cookie() const {return m_cookie;}
+            void     set_cookie(const int32_t cookie){ m_cookie = cookie;}
         protected:
             virtual void free_block(uint8_t* block_ptr,int32_t capacity)
             {
@@ -2184,6 +2197,8 @@ namespace top
             xstream_t & operator = (const xstream_t&);
         private:
             uint8_t*  m_init_external_mem_ptr;
+            int32_t   m_cookie;  //app set customized value for specific logic
+            int32_t   m_reserved_32; //reserved for feature
         };
  
     

@@ -1224,4 +1224,4 @@ extern "C"
 //xbase version definition
 #define     __XBASE_MAIN_VERSION_CODE__         1       //main version,max 255
 #define     __XBASE_FEATURE_VERSION_CODE__      3       //new feature,max 255
-#define     __XBASE_MINOR_VERSION_CODE__        8       //bug fix,max 255
+#define     __XBASE_MINOR_VERSION_CODE__        9       //bug fix,max 255

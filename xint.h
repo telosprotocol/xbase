@@ -4,9 +4,9 @@
 
 #pragma once
 
+#include <string>
 #include <memory.h>
 #include <functional>
-#include <string>
 #include "xbase.h"
 
 namespace top

@@ -158,6 +158,8 @@
 		99C994D12137E184004D1049 /* xdata.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 99C994CF2137E184004D1049 /* xdata.cpp */; };
 		99C994D42137E19C004D1049 /* xdata.h in Headers */ = {isa = PBXBuildFile; fileRef = 99C994D32137E19C004D1049 /* xdata.h */; };
 		99EF74E42112713D005D7FCE /* xbase.h in Headers */ = {isa = PBXBuildFile; fileRef = 99EF74E32112713D005D7FCE /* xbase.h */; };
+		99F5259B26896D8E00DA8155 /* xlru_cache.h in Headers */ = {isa = PBXBuildFile; fileRef = 99F5259A26896D8E00DA8155 /* xlru_cache.h */; };
+		99F5259C26896D8E00DA8155 /* xlru_cache.h in Headers */ = {isa = PBXBuildFile; fileRef = 99F5259A26896D8E00DA8155 /* xlru_cache.h */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -247,6 +249,7 @@
 		99C994D32137E19C004D1049 /* xdata.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = xdata.h; path = ../../xdata.h; sourceTree = "<group>"; };
 		99EF74DC21127072005D7FCE /* libxbase.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libxbase.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		99EF74E32112713D005D7FCE /* xbase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = xbase.h; path = ../../xbase.h; sourceTree = "<group>"; };
+		99F5259A26896D8E00DA8155 /* xlru_cache.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = xlru_cache.h; path = ../../xlru_cache.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -362,6 +365,7 @@
 				997716152263171900C918F7 /* xbasepdu.h */,
 				99269A712167F08B0011BA87 /* xatom.h */,
 				993FDB47212A42340032AA04 /* xlock.h */,
+				99F5259A26896D8E00DA8155 /* xlru_cache.h */,
 				993AC3FD2127AE0C00AB0B93 /* xtls.h */,
 				991ECBB721241D4F0042E934 /* xint.h */,
 				991ECB9C2123C9E50042E934 /* xlog.h */,
@@ -397,6 +401,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				9906CC8621D5F24400099BF0 /* xendpoint.h in Headers */,
+				99F5259C26896D8E00DA8155 /* xlru_cache.h in Headers */,
 				9915BDB1225490EC00F43C51 /* xservice.h in Headers */,
 				99A6A54425EB685400EA149F /* xvmethod.h in Headers */,
 				9906CC8721D5F24400099BF0 /* xdata.h in Headers */,
@@ -478,6 +483,7 @@
 				994AD2C8212EA1BB0074D17F /* xcontext.h in Headers */,
 				994DC175224C558800B70BD0 /* xgateway.h in Headers */,
 				9915BDDD2259DE7900F43C51 /* xcrc16.h in Headers */,
+				99F5259B26896D8E00DA8155 /* xlru_cache.h in Headers */,
 				99269A74216887DE0011BA87 /* xpacket.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
