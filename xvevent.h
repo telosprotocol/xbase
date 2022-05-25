@@ -104,7 +104,7 @@ namespace top
             int32_t             m_error_code;  //default it is 0 = successful
             std::string         m_result_data; //default it is empty
         };
-    };//end of namespace of base
+    }//end of namespace of base
 
     namespace mbus //move definition of xevent_t from mbus into xbase module
     {
