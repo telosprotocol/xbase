@@ -378,4 +378,11 @@ inline xobject_ptr_t<base::xiothread_t> make_object_ptr() {
     return iothread;
 }
 
+template <>
+inline xobject_ptr_t<base::xiothread_t> make_object_ptr<base::xiothread_t, base::xiothread_t::enum_xthread_type>(base::xiothread_t::enum_xthread_type && thread_type) {
+    xobject_ptr_t<base::xiothread_t> iothread;
+    iothread.attach(base::xiothread_t::create_thread(base::xcontext_t::instance(), thread_type, -1));
+    return iothread;
+}
+
 NS_END1
