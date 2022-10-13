@@ -5,7 +5,11 @@
 #pragma once
 
 #if defined __cplusplus
-#   if __cplusplus > 201703L
+#   if __cplusplus > 202002L
+#       define XCXX2B
+#   elif __cplusplus == 202002L
+#       define XCXX20
+#   elif __cplusplus > 201703L
 #       define XCXX2A
 #   elif __cplusplus == 201703L
 #       define XCXX17
@@ -24,30 +28,43 @@
 #   error "__cplusplus not defined"
 #endif
 
-#if defined XCXX2A
+#if defined(XCXX2B)
+#    define XBEYOND_CXX20
+#    define XBEYOND_CXX17
+#    define XBEYOND_CXX14
+#    define XBEYOND_CXX11
+#elif (defined(XCXX20) || defined(XCXX2A))
 #   define XBEYOND_CXX17
 #   define XBEYOND_CXX14
 #   define XBEYOND_CXX11
-#elif (defined XCXX17 || defined XCXX1Z)
+#elif (defined(XCXX17) || defined(XCXX1Z))
 #   define XBEYOND_CXX14
 #   define XBEYOND_CXX11
-#elif (defined XCXX14 || defined XCXX1Y)
+#elif (defined(XCXX14) || defined(XCXX1Y))
 #   define XBEYOND_CXX11
 #endif
 
-#if (defined XCXX17 || defined XBEYOND_CXX17)
+#if defined(XCXX23)
+#    define XCXX23_OR_ABOVE
+#endif
+
+#if (defined(XCXX20) || defined(XBEYOND_CXX20))
+#   define XCXX20_OR_ABOVE
+#endif
+
+#if (defined(XCXX17) || defined(XBEYOND_CXX17))
 #   define XCXX17_OR_ABOVE
 #endif
 
-#if (defined XCXX14 || defined XBEYOND_CXX14)
+#if (defined(XCXX14) || defined(XBEYOND_CXX14))
 #   define XCXX14_OR_ABOVE
 #endif
 
-#if (defined XCXX11 || defined XBEYOND_CXX11)
+#if (defined(XCXX11) || defined(XBEYOND_CXX11))
 #   define XCXX11_OR_ABOVE
 #endif
 
-#if defined XCXX17_OR_BEYOND
+#if (defined(XCXX17_OR_BEYOND) || defined(XCXX20_OR_BEYOND))
 #   define XINLINE_VARIABLE                     inline
 #   define XSTATIC_ASSERT(CONDITION)            static_assert(CONDITION)
 #   define XATTRIBUTE_DEPRECATED                [[deprecated]]
@@ -55,7 +72,7 @@
 #   define XATTRIBUTE_FALLTHROUGH               [[fallthrough]]
 #   define XATTRIBUTE_NODISCARD                 [[nodiscard]]
 #   define XATTRIBUTE_MAYBE_UNUSED              [[maybe_unused]]
-#elif defined XCXX14_OR_BEYOND
+#elif defined(XCXX14_OR_BEYOND)
 #   define XINLINE_VARIABLE
 #   define XSTATIC_ASSERT(CONDITION)            static_assert(CONDITION, # CONDITION)
 #   define XATTRIBUTE_DEPRECATED                [[deprecated]]
