@@ -63,7 +63,8 @@ public:
         }
     }
 
-    xobject_ptr_t(xobject_ptr_t && o) : m_ptr(o.m_ptr) {
+    xobject_ptr_t(xobject_ptr_t && o) noexcept
+        : m_ptr(o.m_ptr) {
         o.m_ptr = nullptr;
     }
 
@@ -384,5 +385,16 @@ inline xobject_ptr_t<base::xiothread_t> make_object_ptr<base::xiothread_t, base:
     iothread.attach(base::xiothread_t::create_thread(base::xcontext_t::instance(), thread_type, -1));
     return iothread;
 }
+
+NS_END1
+
+NS_BEG1(std)
+
+template <typename T>
+struct hash<top::xobject_ptr_t<T>> {
+    size_t operator()(top::xobject_ptr_t<T> const & ptr) const noexcept {
+        return std::hash<typename top::xobject_ptr_t<T>::element_type *>{}(ptr.get());
+    }
+};
 
 NS_END1
