@@ -4,67 +4,36 @@
 
 #pragma once
 
-#if defined __cplusplus
-#   if __cplusplus > 202002L
-#       define XCXX2B
-#   elif __cplusplus == 202002L
-#       define XCXX20
-#   elif __cplusplus > 201703L
-#       define XCXX2A
-#   elif __cplusplus == 201703L
-#       define XCXX17
-#   elfi __cplusplus > 201402L
-#       define XCXX1Z
-#   elif __cplusplus == 201402L
-#       define XCXX14
-#   elif __cplusplus > 201103L
-#       define XCXX1Y
-#   elif __cplusplus == 201103L
+#if defined(__cplusplus)
+
+#    if (__cplusplus) < 201103L
+#        error "we only support c++11 and above"
+#    endif
+
+#    if (__cplusplus) >= 201103L
 #       define XCXX11
-#   else
-#       error "we only support c++11 and above"
-#   endif
+#    endif
+
+#    if (__cplusplus) >= 201402L
+#       define XCXX14
+#    endif
+
+#    if (__cplusplus) >= 201703L
+#       define XCXX17
+#    endif
+
+#    if (__cplusplus) >= 202002L
+#       define XCXX20
+#    endif
+
 #else
-#   error "__cplusplus not defined"
+
+#    error "__cplusplus not defined"
+
 #endif
 
-#if defined(XCXX2B)
-#    define XBEYOND_CXX20
-#    define XBEYOND_CXX17
-#    define XBEYOND_CXX14
-#    define XBEYOND_CXX11
-#elif (defined(XCXX20) || defined(XCXX2A))
-#   define XBEYOND_CXX17
-#   define XBEYOND_CXX14
-#   define XBEYOND_CXX11
-#elif (defined(XCXX17) || defined(XCXX1Z))
-#   define XBEYOND_CXX14
-#   define XBEYOND_CXX11
-#elif (defined(XCXX14) || defined(XCXX1Y))
-#   define XBEYOND_CXX11
-#endif
 
-#if defined(XCXX23)
-#    define XCXX23_OR_ABOVE
-#endif
-
-#if (defined(XCXX20) || defined(XBEYOND_CXX20))
-#   define XCXX20_OR_ABOVE
-#endif
-
-#if (defined(XCXX17) || defined(XBEYOND_CXX17))
-#   define XCXX17_OR_ABOVE
-#endif
-
-#if (defined(XCXX14) || defined(XBEYOND_CXX14))
-#   define XCXX14_OR_ABOVE
-#endif
-
-#if (defined(XCXX11) || defined(XBEYOND_CXX11))
-#   define XCXX11_OR_ABOVE
-#endif
-
-#if (defined(XCXX17_OR_BEYOND) || defined(XCXX20_OR_BEYOND))
+#if defined(XCXX17)
 #   define XINLINE_VARIABLE                     inline
 #   define XSTATIC_ASSERT(CONDITION)            static_assert(CONDITION)
 #   define XATTRIBUTE_DEPRECATED                [[deprecated]]
@@ -72,7 +41,7 @@
 #   define XATTRIBUTE_FALLTHROUGH               [[fallthrough]]
 #   define XATTRIBUTE_NODISCARD                 [[nodiscard]]
 #   define XATTRIBUTE_MAYBE_UNUSED              [[maybe_unused]]
-#elif defined(XCXX14_OR_BEYOND)
+#elif defined(XCXX14)
 #   define XINLINE_VARIABLE
 #   define XSTATIC_ASSERT(CONDITION)            static_assert(CONDITION, # CONDITION)
 #   define XATTRIBUTE_DEPRECATED                [[deprecated]]
