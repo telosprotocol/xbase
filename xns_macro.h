@@ -12,7 +12,7 @@
 # define NS_BEG1(NS)     namespace NS {
 # define NS_END1                      }
 
-#if defined XCXX17_OR_ABOVE
+#if defined(XCXX17)
 
 # define NS_BEG2(NS1, NS2)  namespace NS1::NS2 {
 # define NS_END2            }
