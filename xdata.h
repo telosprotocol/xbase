@@ -104,7 +104,7 @@ namespace top
             {
                 int16_t   obj_type;         //data object type
                 uint16_t  obj_flags;        //data object flags
-                uint32_t  obj_length;       //the length(max 24bit) of the whole data,note:high8bit is reserved as version of pdu
+                uint32_t  obj_length;       //the length(max 31bit) of the whole data
                 uint8_t   body_raw[];       //raw data
             }_ALIGNPACKED_1;
         public:
@@ -166,7 +166,7 @@ namespace top
         protected:
             int16_t             m_obj_type;         //data object type
             uint16_t            m_obj_flags;        //data object flags
-            uint32_t            m_obj_length;       //the length(max 24bit) of the whole data,note:high8bit is reserved as version of pdu
+            uint32_t            m_obj_length;       //the length(max 31bit) of the whole data
         private:
             uint8_t             m_pdu_version;      //version code of pdu
         protected:
@@ -236,7 +236,7 @@ namespace top
             {
                 int16_t   obj_type;         //data object type
                 uint16_t  obj_flags;        //data object flags
-                uint32_t  obj_length;       //the length(max 24bit) of the whole data,note:high8bit is reserved as version of pdu
+                uint32_t  obj_length;       //the length(max 31bit) of the whole data
                 
                 uint32_t  obj_hash;         //64bit xhash(body_raw)
                 uint32_t  obj_last_hash;    //point to last m_obj_hash
